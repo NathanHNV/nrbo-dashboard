@@ -1,0 +1,509 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>NRBO Target Dashboard</title>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#0a0a0f;
+  --surface:#111118;
+  --surface2:#16161f;
+  --surface3:#1c1c28;
+  --text:#e8e8f0;
+  --text2:#9090a8;
+  --text3:#55556a;
+  --border:rgba(255,255,255,0.06);
+  --border2:rgba(255,255,255,0.1);
+  --border3:rgba(255,255,255,0.16);
+  --radius:8px;--radius-lg:14px;
+  --sidebar:225px;
+  /* Neon palette */
+  --neon-cyan:#00e5ff;
+  --neon-cyan-dim:rgba(0,229,255,0.12);
+  --neon-cyan-glow:rgba(0,229,255,0.25);
+  --neon-green:#39ff14;
+  --neon-green-dim:rgba(57,255,20,0.1);
+  --neon-amber:#ffb300;
+  --neon-amber-dim:rgba(255,179,0,0.12);
+  --neon-red:#ff3b5c;
+  --neon-red-dim:rgba(255,59,92,0.12);
+  --neon-purple:#bf5fff;
+  --neon-purple-dim:rgba(191,95,255,0.12);
+  /* Gold/Platinum/Black tier accents */
+  --gold:#ffcc00;
+  --gold-dim:rgba(255,204,0,0.1);
+  --platinum:#7eb8f7;
+  --platinum-dim:rgba(126,184,247,0.1);
+  --black-tier:#a0a0b8;
+  --black-tier-dim:rgba(160,160,184,0.08);
+}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;display:flex}
+
+/* ── Scanline overlay ── */
+body::before{content:'';position:fixed;inset:0;background:repeating-linear-gradient(0deg,transparent,transparent 2px,rgba(0,0,0,0.03) 2px,rgba(0,0,0,0.03) 4px);pointer-events:none;z-index:1000}
+
+/* ── Sidebar ── */
+.sidebar{width:var(--sidebar);min-height:100vh;background:var(--surface);border-right:0.5px solid var(--border2);display:flex;flex-direction:column;position:fixed;top:0;left:0;z-index:100}
+.sidebar-logo{padding:1.25rem 1rem 1rem;border-bottom:0.5px solid var(--border2)}
+.sidebar-logo span{font-size:15px;font-weight:500;color:var(--neon-cyan);letter-spacing:.04em;text-shadow:0 0 12px var(--neon-cyan-glow)}
+.sidebar-logo sub{display:block;font-size:11px;color:var(--text3);margin-top:3px}
+.nav-section{padding:.75rem .5rem .25rem 1rem;font-size:10px;font-weight:500;letter-spacing:.1em;text-transform:uppercase;color:var(--text3)}
+.nav-item{display:flex;align-items:center;gap:9px;padding:.55rem 1rem;font-size:13px;color:var(--text2);border-radius:var(--radius);margin:1px .5rem;cursor:pointer;border:none;background:transparent;width:calc(100% - 1rem);text-align:left;transition:all .15s}
+.nav-item:hover{background:var(--surface3);color:var(--text)}
+.nav-item.active{background:var(--neon-cyan-dim);color:var(--neon-cyan);border:0.5px solid rgba(0,229,255,0.2)}
+.nav-item .icon{width:15px;height:15px;flex-shrink:0;opacity:.5}
+.nav-item.active .icon{opacity:1}
+.sidebar-footer{margin-top:auto;padding:.75rem 1rem;font-size:11px;color:var(--text3);border-top:0.5px solid var(--border)}
+
+/* ── Main ── */
+.main{margin-left:var(--sidebar);flex:1;padding:2rem 1.75rem;max-width:100%}
+.page{display:none}.page.active{display:block}
+.page-header{margin-bottom:1.75rem}
+.page-header h1{font-size:22px;font-weight:500;letter-spacing:.02em;color:var(--text)}
+.page-header p{font-size:14px;color:var(--text2);margin-top:5px}
+
+/* ── Quarter badge ── */
+.q-badge{display:inline-flex;align-items:center;gap:6px;font-size:12px;font-weight:500;padding:4px 12px;border-radius:99px;background:var(--neon-cyan-dim);border:0.5px solid rgba(0,229,255,0.25);color:var(--neon-cyan);margin-top:10px;letter-spacing:.03em}
+.q-badge::before{content:'';width:6px;height:6px;border-radius:50%;background:var(--neon-cyan);box-shadow:0 0 8px var(--neon-cyan);flex-shrink:0}
+
+/* ── Cards ── */
+.card{background:var(--surface);border:0.5px solid var(--border2);border-radius:var(--radius-lg);padding:1.25rem 1.5rem;margin-bottom:1.25rem;position:relative;overflow:hidden}
+.card::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,rgba(0,229,255,0.3),transparent)}
+.card h2{font-size:13px;font-weight:500;color:var(--text2);margin-bottom:1rem;text-transform:uppercase;letter-spacing:.08em}
+hr{border:none;border-top:0.5px solid var(--border);margin:1.25rem 0}
+
+/* ── Inputs ── */
+.input-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(175px,1fr));gap:12px}
+.field{display:flex;flex-direction:column;gap:5px}
+.field label{font-size:11px;font-weight:500;color:var(--text3);text-transform:uppercase;letter-spacing:.07em}
+.field input{padding:9px 12px;border:0.5px solid var(--border2);border-radius:var(--radius);background:var(--surface2);color:var(--text);font-size:15px;outline:none;transition:border-color .2s,box-shadow .2s;width:100%}
+.field input:focus{border-color:var(--neon-cyan);box-shadow:0 0 0 3px rgba(0,229,255,0.08)}
+.field input.tgt{border-color:rgba(255,179,0,0.3);color:var(--neon-amber)}
+.field input.tgt:focus{border-color:var(--neon-amber);box-shadow:0 0 0 3px rgba(255,179,0,0.08)}
+
+/* ── Tier tabs ── */
+.tier-tabs{display:flex;gap:8px;margin-bottom:1.25rem}
+.tier-tab{flex:1;padding:.6rem 1rem;font-size:13px;font-weight:500;cursor:pointer;border:0.5px solid var(--border2);border-radius:var(--radius);background:var(--surface);color:var(--text2);transition:all .15s;text-align:center;letter-spacing:.03em}
+.tier-tab:hover{background:var(--surface3);color:var(--text)}
+.tier-tab.gold.active{background:var(--gold-dim);color:var(--gold);border-color:rgba(255,204,0,0.3);box-shadow:0 0 16px rgba(255,204,0,0.1)}
+.tier-tab.platinum.active{background:var(--platinum-dim);color:var(--platinum);border-color:rgba(126,184,247,0.3);box-shadow:0 0 16px rgba(126,184,247,0.1)}
+.tier-tab.black.active{background:var(--black-tier-dim);color:var(--black-tier);border-color:rgba(160,160,184,0.25);box-shadow:0 0 16px rgba(160,160,184,0.06)}
+
+/* ── View toggle ── */
+.view-toggle{display:inline-flex;border:0.5px solid var(--border2);border-radius:var(--radius);overflow:hidden}
+.vt-btn{padding:5px 14px;font-size:12px;cursor:pointer;border:none;background:transparent;color:var(--text3);transition:all .12s;font-weight:500;letter-spacing:.04em;text-transform:uppercase}
+.vt-btn:hover{background:var(--surface3);color:var(--text2)}
+.vt-btn.active{background:var(--neon-cyan-dim);color:var(--neon-cyan)}
+
+/* ── Metric cards ── */
+.metric-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:10px}
+.metric{background:var(--surface2);border:0.5px solid var(--border);border-radius:var(--radius);padding:.9rem 1rem;position:relative;overflow:hidden}
+.metric::after{content:'';position:absolute;bottom:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,rgba(0,229,255,0.15),transparent)}
+.metric .lbl{font-size:10px;font-weight:500;color:var(--text3);text-transform:uppercase;letter-spacing:.08em;margin-bottom:6px}
+.metric .val{font-size:20px;font-weight:500;color:var(--text)}
+.metric .val.pos{color:var(--neon-green);text-shadow:0 0 12px rgba(57,255,20,0.3)}
+.metric .val.neg{color:var(--neon-red);text-shadow:0 0 12px rgba(255,59,92,0.3)}
+.metric.hero .val{font-size:28px}
+
+/* ── Deductions ── */
+.deduct-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:6px}
+.deduct-row{display:flex;justify-content:space-between;align-items:center;background:var(--surface2);border:0.5px solid var(--border);border-radius:var(--radius);padding:.6rem 1rem}
+.deduct-row .dn{font-size:13px;color:var(--text2)}
+.deduct-row .dv{font-size:13px;font-weight:500;color:var(--neon-red)}
+.nrbo-block{display:flex;gap:12px;flex-wrap:wrap;margin-top:1rem}
+.nrbo-block .metric{flex:1;min-width:150px}
+
+/* ── Tracking ── */
+.track{background:var(--surface2);border:0.5px solid var(--border2);border-radius:var(--radius-lg);padding:1.25rem;margin-top:.5rem;position:relative;overflow:hidden}
+.track::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,rgba(0,229,255,0.4),transparent)}
+.track-top{display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:8px;margin-bottom:1rem}
+.track-top .pct{font-size:32px;font-weight:500;color:var(--neon-cyan);text-shadow:0 0 20px var(--neon-cyan-glow);letter-spacing:-.01em}
+.track-top .sub{font-size:13px;color:var(--text2);margin-top:4px}
+
+/* ── Badge ── */
+.badge{font-size:11px;font-weight:500;padding:4px 12px;border-radius:99px;letter-spacing:.05em;text-transform:uppercase}
+.badge.green{background:var(--neon-green-dim);color:var(--neon-green);border:0.5px solid rgba(57,255,20,0.25);box-shadow:0 0 10px rgba(57,255,20,0.1)}
+.badge.amber{background:var(--neon-amber-dim);color:var(--neon-amber);border:0.5px solid rgba(255,179,0,0.25);box-shadow:0 0 10px rgba(255,179,0,0.1)}
+.badge.red{background:var(--neon-red-dim);color:var(--neon-red);border:0.5px solid rgba(255,59,92,0.25);box-shadow:0 0 10px rgba(255,59,92,0.1)}
+
+/* ── Progress bar ── */
+.bar-bg{background:rgba(255,255,255,0.05);border-radius:99px;height:6px;overflow:hidden;margin-bottom:1rem}
+.bar{height:6px;border-radius:99px;transition:width .5s cubic-bezier(.4,0,.2,1),background .4s;background:var(--neon-cyan);box-shadow:0 0 10px var(--neon-cyan-glow)}
+.bar.amber{background:var(--neon-amber);box-shadow:0 0 10px rgba(255,179,0,0.4)}
+.bar.red{background:var(--neon-red);box-shadow:0 0 10px rgba(255,59,92,0.4)}
+
+/* ── Track stats ── */
+.track-bottom{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:8px}
+.track-stat{background:var(--surface3);border:0.5px solid var(--border);border-radius:var(--radius);padding:.65rem .9rem}
+.track-stat .tsl{font-size:10px;font-weight:500;color:var(--text3);text-transform:uppercase;letter-spacing:.07em}
+.track-stat .tsv{font-size:15px;font-weight:500;color:var(--text);margin-top:3px}
+
+/* ── Summary cards ── */
+.summary-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:10px;margin-bottom:1.5rem}
+.summary-tier{background:var(--surface);border:0.5px solid var(--border2);border-radius:var(--radius-lg);padding:1rem 1.25rem;position:relative;overflow:hidden}
+.summary-tier .tier-name{font-size:10px;font-weight:500;letter-spacing:.1em;text-transform:uppercase;margin-bottom:.5rem}
+.summary-tier.gold{border-color:rgba(255,204,0,0.2)}.summary-tier.gold::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,rgba(255,204,0,0.5),transparent)}
+.summary-tier.gold .tier-name{color:var(--gold)}
+.summary-tier.platinum{border-color:rgba(126,184,247,0.2)}.summary-tier.platinum::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,rgba(126,184,247,0.5),transparent)}
+.summary-tier.platinum .tier-name{color:var(--platinum)}
+.summary-tier.black{border-color:rgba(160,160,184,0.15)}.summary-tier.black::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,rgba(160,160,184,0.3),transparent)}
+.summary-tier.black .tier-name{color:var(--black-tier)}
+.summary-tier .big{font-size:22px;font-weight:500}
+.summary-tier .big.pos{color:var(--neon-green)}
+.summary-tier .big.neg{color:var(--neon-red)}
+.prog-mini .bar-bg{margin-bottom:4px;height:4px}
+.prog-mini span{font-size:11px;color:var(--text3)}
+.summary-total{border-color:rgba(0,229,255,0.2)}.summary-total::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,rgba(0,229,255,0.5),transparent)}
+.summary-total .tier-name{color:var(--neon-cyan)}
+
+/* ── Placeholder ── */
+.placeholder{display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:60vh;gap:1rem;color:var(--text3)}
+.placeholder h2{font-size:18px;font-weight:500;color:var(--text2)}
+.placeholder p{font-size:14px;text-align:center;max-width:320px;line-height:1.6}
+.placeholder code{font-size:13px;background:var(--surface2);padding:2px 8px;border-radius:4px;color:var(--neon-cyan)}
+
+@media(max-width:680px){
+  .sidebar{width:100%;min-height:auto;position:relative;border-right:none;border-bottom:0.5px solid var(--border2)}
+  .main{margin-left:0;padding:1.25rem 1rem}
+  .nav-section,.sidebar-footer{display:none}
+}
+</style>
+</head>
+<body>
+
+<!-- ── SIDEBAR ── -->
+<nav class="sidebar">
+  <div class="sidebar-logo">
+    <span>VIP Dashboard</span>
+    <sub id="nav-q-label">Loading...</sub>
+  </div>
+  <div class="nav-section">Performance</div>
+  <button class="nav-item active" onclick="showPage('nrbo',this)">
+    <svg class="icon" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="1" y="8" width="3" height="7" rx="1"/><rect x="6" y="5" width="3" height="10" rx="1"/><rect x="11" y="1" width="3" height="14" rx="1"/></svg>
+    NRBO Tracker
+  </button>
+  <div class="nav-section">Dashboards</div>
+  <button class="nav-item" onclick="showPage('player',this)">
+    <svg class="icon" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="8" cy="5" r="3"/><path d="M2 14c0-3.3 2.7-6 6-6s6 2.7 6 6"/></svg>
+    Player Analysis
+  </button>
+  <button class="nav-item" onclick="showPage('team',this)">
+    <svg class="icon" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="5" cy="5" r="2.5"/><circle cx="11" cy="5" r="2.5"/><path d="M0 14c0-2.8 2.2-5 5-5M16 14c0-2.8-2.2-5-5-5M8 14c0-2.8 1.3-5 3-5.5M8 14c0-2.8-1.3-5-3-5.5"/></svg>
+    Team Dashboard
+  </button>
+  <div class="nav-section">Resources</div>
+  <button class="nav-item" onclick="showPage('guides',this)">
+    <svg class="icon" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="2" y="1" width="10" height="13" rx="1"/><path d="M5 5h5M5 8h5M5 11h3"/><path d="M12 4h2v10a1 1 0 01-1 1H4"/></svg>
+    Team Guides
+  </button>
+  <div class="sidebar-footer" id="sidebar-days"></div>
+</nav>
+
+<!-- ── MAIN ── -->
+<div class="main">
+
+  <!-- PAGE: NRBO -->
+  <div class="page active" id="page-nrbo">
+    <div class="page-header">
+      <h1>NRBO Target Dashboard</h1>
+      <p>Enter actuals per VIP tier — all figures calculate automatically.</p>
+      <div class="q-badge" id="q-label"></div>
+    </div>
+
+    <!-- Summary row -->
+    <div class="summary-grid">
+      <div class="summary-tier gold">
+        <div class="tier-name">Gold</div>
+        <div class="big" id="sum-nrbo-gold">€0</div>
+        <div class="prog-mini"><div class="bar-bg"><div class="bar" id="sum-bar-gold" style="width:0%;background:var(--gold);box-shadow:0 0 8px rgba(255,204,0,0.4)"></div></div><span id="sum-pct-gold">No target set</span></div>
+      </div>
+      <div class="summary-tier platinum">
+        <div class="tier-name">Platinum</div>
+        <div class="big" id="sum-nrbo-platinum">€0</div>
+        <div class="prog-mini"><div class="bar-bg"><div class="bar" id="sum-bar-platinum" style="width:0%;background:var(--platinum);box-shadow:0 0 8px rgba(126,184,247,0.4)"></div></div><span id="sum-pct-platinum">No target set</span></div>
+      </div>
+      <div class="summary-tier black">
+        <div class="tier-name">Black</div>
+        <div class="big" id="sum-nrbo-black">€0</div>
+        <div class="prog-mini"><div class="bar-bg"><div class="bar" id="sum-bar-black" style="width:0%;background:var(--black-tier)"></div></div><span id="sum-pct-black">No target set</span></div>
+      </div>
+      <div class="summary-tier summary-total">
+        <div class="tier-name" style="color:var(--neon-cyan)">Total NRBO</div>
+        <div class="big" id="sum-nrbo-total">€0</div>
+        <div class="prog-mini"><div class="bar-bg"><div class="bar" id="sum-bar-total" style="width:0%"></div></div><span id="sum-pct-total">No targets set</span></div>
+      </div>
+    </div>
+
+    <!-- Tier tabs -->
+    <div class="tier-tabs">
+      <button class="tier-tab gold active" onclick="switchTier('gold')">⬡ Gold</button>
+      <button class="tier-tab platinum" onclick="switchTier('platinum')">⬡ Platinum</button>
+      <button class="tier-tab black" onclick="switchTier('black')">⬡ Black</button>
+    </div>
+
+    <!-- Inputs -->
+    <div class="card" id="inputs-gold">
+      <h2>Gold — inputs</h2>
+      <div class="input-grid">
+        <div class="field"><label>Total Deposit (€)</label><input type="number" id="gold-dep" placeholder="0" min="0" oninput="calc()"></div>
+        <div class="field"><label>Total Withdrawal (€)</label><input type="number" id="gold-with" placeholder="0" min="0" oninput="calc()"></div>
+        <div class="field"><label>Bonus Given (€)</label><input type="number" id="gold-bonus" placeholder="0" min="0" oninput="calc()"></div>
+        <div class="field"><label>Cash Given (€)</label><input type="number" id="gold-cash" placeholder="0" min="0" oninput="calc()"></div>
+        <div class="field"><label>CP Converted (€)</label><input type="number" id="gold-cp" placeholder="0" min="0" oninput="calc()"></div>
+        <div class="field"><label>Quarterly Target (€)</label><input type="number" id="gold-target" placeholder="0" min="0" class="tgt" oninput="calc()"></div>
+      </div>
+    </div>
+    <div class="card" id="inputs-platinum" style="display:none">
+      <h2>Platinum — inputs</h2>
+      <div class="input-grid">
+        <div class="field"><label>Total Deposit (€)</label><input type="number" id="platinum-dep" placeholder="0" min="0" oninput="calc()"></div>
+        <div class="field"><label>Total Withdrawal (€)</label><input type="number" id="platinum-with" placeholder="0" min="0" oninput="calc()"></div>
+        <div class="field"><label>Bonus Given (€)</label><input type="number" id="platinum-bonus" placeholder="0" min="0" oninput="calc()"></div>
+        <div class="field"><label>Cash Given (€)</label><input type="number" id="platinum-cash" placeholder="0" min="0" oninput="calc()"></div>
+        <div class="field"><label>CP Converted (€)</label><input type="number" id="platinum-cp" placeholder="0" min="0" oninput="calc()"></div>
+        <div class="field"><label>Quarterly Target (€)</label><input type="number" id="platinum-target" placeholder="0" min="0" class="tgt" oninput="calc()"></div>
+      </div>
+    </div>
+    <div class="card" id="inputs-black" style="display:none">
+      <h2>Black — inputs</h2>
+      <div class="input-grid">
+        <div class="field"><label>Total Deposit (€)</label><input type="number" id="black-dep" placeholder="0" min="0" oninput="calc()"></div>
+        <div class="field"><label>Total Withdrawal (€)</label><input type="number" id="black-with" placeholder="0" min="0" oninput="calc()"></div>
+        <div class="field"><label>Bonus Given (€)</label><input type="number" id="black-bonus" placeholder="0" min="0" oninput="calc()"></div>
+        <div class="field"><label>Cash Given (€)</label><input type="number" id="black-cash" placeholder="0" min="0" oninput="calc()"></div>
+        <div class="field"><label>CP Converted (€)</label><input type="number" id="black-cp" placeholder="0" min="0" oninput="calc()"></div>
+        <div class="field"><label>Quarterly Target (€)</label><input type="number" id="black-target" placeholder="0" min="0" class="tgt" oninput="calc()"></div>
+      </div>
+    </div>
+
+    <!-- Deductions -->
+    <div class="card">
+      <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px;margin-bottom:1rem">
+        <h2 style="margin:0" id="deduct-heading">Deductions — Gold</h2>
+        <div class="view-toggle">
+          <button class="vt-btn active" onclick="setView('tier','deduct')" id="vt-deduct-tier">This tier</button>
+          <button class="vt-btn" onclick="setView('all','deduct')" id="vt-deduct-all">All tiers</button>
+        </div>
+      </div>
+      <div class="metric-grid" style="margin-bottom:1rem">
+        <div class="metric"><div class="lbl">Net deposit</div><div class="val" id="d-nd">€0</div></div>
+        <div class="metric"><div class="lbl">Total bonus</div><div class="val" id="d-tb">€0</div></div>
+        <div class="metric"><div class="lbl">GGR</div><div class="val" id="d-ggr">€0</div></div>
+        <div class="metric"><div class="lbl">NGR</div><div class="val" id="d-ngr">€0</div></div>
+      </div>
+      <div class="deduct-grid">
+        <div class="deduct-row"><span class="dn">Provider fees (15% GGR)</span><span class="dv" id="d-pf">-€0</span></div>
+        <div class="deduct-row"><span class="dn">Software fees (10% NGR)</span><span class="dv" id="d-sf">-€0</span></div>
+        <div class="deduct-row"><span class="dn">Processing fees (5% ND)</span><span class="dv" id="d-proc">-€0</span></div>
+        <div class="deduct-row"><span class="dn">Gaming tax (3% NGR)</span><span class="dv" id="d-tax">-€0</span></div>
+        <div class="deduct-row"><span class="dn">Acquisition (15% NGR)</span><span class="dv" id="d-acq">-€0</span></div>
+        <div class="deduct-row"><span class="dn">VAT (19% GGR)</span><span class="dv" id="d-vat">-€0</span></div>
+      </div>
+      <hr>
+      <div class="nrbo-block">
+        <div class="metric"><div class="lbl">Total deductions</div><div class="val neg" id="d-totded">-€0</div></div>
+        <div class="metric hero"><div class="lbl">NRBO</div><div class="val" id="d-nrbo">€0</div></div>
+      </div>
+    </div>
+
+    <!-- Tracking -->
+    <div class="card">
+      <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px;margin-bottom:1rem">
+        <h2 style="margin:0" id="track-heading">Quarterly tracking — Gold</h2>
+        <div class="view-toggle">
+          <button class="vt-btn active" onclick="setView('tier','track')" id="vt-track-tier">This tier</button>
+          <button class="vt-btn" onclick="setView('all','track')" id="vt-track-all">All tiers</button>
+        </div>
+      </div>
+      <div class="track">
+        <div class="track-top">
+          <div><div class="pct" id="t-pct">—</div><div class="sub" id="t-sub">Enter targets to see tracking</div></div>
+          <span class="badge green" id="t-badge" style="display:none"></span>
+        </div>
+        <div class="bar-bg"><div class="bar" id="t-bar" style="width:0%"></div></div>
+        <div class="track-bottom">
+          <div class="track-stat"><div class="tsl">Projected quarter-end NRBO</div><div class="tsv" id="t-proj">—</div></div>
+          <div class="track-stat"><div class="tsl">Remaining gap to target</div><div class="tsv" id="t-gap">—</div></div>
+          <div class="track-stat"><div class="tsl">Target</div><div class="tsv" id="t-tgt">—</div></div>
+          <div class="track-stat"><div class="tsl">Days left in quarter</div><div class="tsv" id="t-days">—</div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Player Analysis -->
+  <div class="page" id="page-player">
+    <div class="page-header"><h1>Player Analysis</h1></div>
+    <iframe src="player-analysis.html" style="width:100%;height:88vh;border:none;border-radius:var(--radius-lg);" loading="lazy"></iframe>
+  </div>
+
+  <!-- Team Dashboard -->
+  <div class="page" id="page-team">
+    <div class="page-header"><h1>Team Dashboard</h1></div>
+    <iframe src="team-dashboard.html" style="width:100%;height:88vh;border:none;border-radius:var(--radius-lg);" loading="lazy"></iframe>
+  </div>
+
+  <!-- Team Guides -->
+  <div class="page" id="page-guides">
+    <div class="page-header">
+      <h1>Team Guides</h1>
+      <p>Resources, processes and reference material for the team.</p>
+    </div>
+    <iframe src="team-guides.html" style="width:100%;height:88vh;border:none;border-radius:var(--radius-lg);" loading="lazy"></iframe>
+  </div>
+
+</div>
+
+<script>
+const TIERS=['gold','platinum','black'];
+let activeTier='gold',deductView='tier',trackView='tier';
+
+function fmt(n){const abs=Math.abs(n).toLocaleString('en-IE',{minimumFractionDigits:2,maximumFractionDigits:2});return(n<0?'-€':'€')+abs;}
+
+function getQ(){
+  const now=new Date(),m=now.getMonth(),q=Math.floor(m/3);
+  const names=['Q1 (Jan–Mar)','Q2 (Apr–Jun)','Q3 (Jul–Sep)','Q4 (Oct–Dec)'];
+  const qStart=new Date(now.getFullYear(),q*3,1);
+  const qEnd=new Date(now.getFullYear(),q*3+3,0,23,59,59);
+  const elapsed=(now-qStart)/(qEnd-qStart);
+  const daysLeft=Math.ceil((qEnd-now)/864e5);
+  return{name:names[q],elapsed,daysLeft};
+}
+
+function tierCalc(t){
+  const v=f=>parseFloat(document.getElementById(t+'-'+f).value)||0;
+  const dep=v('dep'),wth=v('with'),bon=v('bonus'),csh=v('cash'),cp=v('cp'),tgt=v('target');
+  const nd=dep-wth,tb=bon+csh+cp,ggr=nd+tb,ngr=nd;
+  const pf=.15*ggr,sf=.10*ngr,proc=.05*nd,tax=.03*ngr,acq=.15*ngr,vat=.19*ggr;
+  const totDed=pf+sf+proc+tax+acq+vat,nrbo=ngr-totDed;
+  return{nd,tb,ggr,ngr,pf,sf,proc,tax,acq,vat,totDed,nrbo,tgt};
+}
+
+function allCalc(){
+  const t={nd:0,tb:0,ggr:0,ngr:0,pf:0,sf:0,proc:0,tax:0,acq:0,vat:0,totDed:0,nrbo:0,tgt:0};
+  TIERS.forEach(tier=>{const c=tierCalc(tier);Object.keys(t).forEach(k=>t[k]+=c[k]);});
+  return t;
+}
+
+function renderDeductions(data,label){
+  document.getElementById('deduct-heading').textContent='Deductions — '+label;
+  document.getElementById('d-nd').textContent=fmt(data.nd);
+  document.getElementById('d-tb').textContent=fmt(data.tb);
+  document.getElementById('d-ggr').textContent=fmt(data.ggr);
+  document.getElementById('d-ngr').textContent=fmt(data.ngr);
+  document.getElementById('d-pf').textContent='-'+fmt(data.pf);
+  document.getElementById('d-sf').textContent='-'+fmt(data.sf);
+  document.getElementById('d-proc').textContent='-'+fmt(data.proc);
+  document.getElementById('d-tax').textContent='-'+fmt(data.tax);
+  document.getElementById('d-acq').textContent='-'+fmt(data.acq);
+  document.getElementById('d-vat').textContent='-'+fmt(data.vat);
+  document.getElementById('d-totded').textContent='-'+fmt(data.totDed);
+  const el=document.getElementById('d-nrbo');
+  el.textContent=fmt(data.nrbo);el.className='val '+(data.nrbo>=0?'pos':'neg');
+}
+
+function renderTracking(data,label){
+  const qi=getQ();
+  document.getElementById('track-heading').textContent='Quarterly tracking — '+label;
+  document.getElementById('t-days').textContent=qi.daysLeft+' days';
+  if(data.tgt>0){
+    const pctNum=(data.nrbo/data.tgt)*100,pctC=Math.max(0,Math.min(pctNum,100));
+    const gap=data.tgt-data.nrbo,proj=qi.elapsed>0?data.nrbo/qi.elapsed:0;
+    document.getElementById('t-pct').textContent=pctNum.toFixed(1)+'%';
+    document.getElementById('t-sub').textContent=gap>0?fmt(gap)+' still needed to hit target':'Target achieved!';
+    document.getElementById('t-tgt').textContent=fmt(data.tgt);
+    document.getElementById('t-gap').textContent=gap>0?fmt(gap):'—';
+    document.getElementById('t-proj').textContent=fmt(proj);
+    const bar=document.getElementById('t-bar');
+    bar.style.width=pctC+'%';
+    bar.className='bar'+(pctC>=100?'':pctC>=60?' amber':' red');
+    const badge=document.getElementById('t-badge');
+    badge.style.display='inline-block';
+    if(pctC>=100){badge.textContent='On target';badge.className='badge green';}
+    else if(pctC>=60){badge.textContent='At risk';badge.className='badge amber';}
+    else{badge.textContent='Behind target';badge.className='badge red';}
+  } else {
+    ['t-pct','t-tgt','t-gap','t-proj'].forEach(id=>document.getElementById(id).textContent='—');
+    document.getElementById('t-sub').textContent='Enter a quarterly NRBO target to see tracking';
+    document.getElementById('t-bar').style.width='0%';
+    document.getElementById('t-bar').className='bar';
+    document.getElementById('t-badge').style.display='none';
+  }
+}
+
+function calc(){
+  let totalNrbo=0,totalTgt=0;
+  const tierColors={gold:'var(--gold)',platinum:'var(--platinum)',black:'var(--black-tier)'};
+  const tierGlow={gold:'rgba(255,204,0,0.4)',platinum:'rgba(126,184,247,0.4)',black:'rgba(160,160,184,0.2)'};
+  TIERS.forEach(tier=>{
+    const d=tierCalc(tier);
+    totalNrbo+=d.nrbo;totalTgt+=d.tgt;
+    const ne=document.getElementById('sum-nrbo-'+tier);
+    ne.textContent=fmt(d.nrbo);ne.className='big '+(d.nrbo>=0?'pos':'neg');
+    const pct=d.tgt>0?Math.max(0,Math.min((d.nrbo/d.tgt)*100,100)):0;
+    const bar=document.getElementById('sum-bar-'+tier);
+    bar.style.width=pct+'%';bar.style.background=tierColors[tier];bar.style.boxShadow='0 0 8px '+tierGlow[tier];
+    document.getElementById('sum-pct-'+tier).textContent=d.tgt>0?(d.nrbo/d.tgt*100).toFixed(1)+'% of target':'No target set';
+  });
+  const te=document.getElementById('sum-nrbo-total');
+  te.textContent=fmt(totalNrbo);te.className='big '+(totalNrbo>=0?'pos':'neg');
+  const tp=totalTgt>0?Math.max(0,Math.min((totalNrbo/totalTgt)*100,100)):0;
+  const tb=document.getElementById('sum-bar-total');
+  tb.style.width=tp+'%';tb.className='bar'+(tp>=100?'':tp>=60?' amber':' red');
+  document.getElementById('sum-pct-total').textContent=totalTgt>0?(totalNrbo/totalTgt*100).toFixed(1)+'% of combined target':'No targets set';
+
+  const deductData=deductView==='tier'?tierCalc(activeTier):allCalc();
+  const deductLabel=deductView==='tier'?cap(activeTier):'All tiers';
+  renderDeductions(deductData,deductLabel);
+
+  const trackData=trackView==='tier'?tierCalc(activeTier):allCalc();
+  const trackLabel=trackView==='tier'?cap(activeTier):'All tiers';
+  renderTracking(trackData,trackLabel);
+}
+
+function cap(s){return s.charAt(0).toUpperCase()+s.slice(1)}
+
+function setView(view,panel){
+  if(panel==='deduct'){
+    deductView=view;
+    document.getElementById('vt-deduct-tier').className='vt-btn'+(view==='tier'?' active':'');
+    document.getElementById('vt-deduct-all').className='vt-btn'+(view==='all'?' active':'');
+  } else {
+    trackView=view;
+    document.getElementById('vt-track-tier').className='vt-btn'+(view==='tier'?' active':'');
+    document.getElementById('vt-track-all').className='vt-btn'+(view==='all'?' active':'');
+  }
+  calc();
+}
+
+function switchTier(tier){
+  activeTier=tier;
+  TIERS.forEach(t=>{
+    document.getElementById('inputs-'+t).style.display=t===tier?'block':'none';
+    document.querySelector('.tier-tab.'+t).className='tier-tab '+t+(t===tier?' active':'');
+  });
+  calc();
+}
+
+function showPage(id,btn){
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.getElementById('page-'+id).classList.add('active');
+  document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
+  btn.classList.add('active');
+  window.scrollTo(0,0);
+}
+
+(function(){
+  const qi=getQ();
+  const lbl=qi.name+' — '+qi.daysLeft+' days remaining';
+  document.getElementById('q-label').textContent=lbl;
+  document.getElementById('nav-q-label').textContent=lbl;
+  document.getElementById('sidebar-days').textContent=qi.daysLeft+' days left in '+qi.name;
+})();
+
+calc();
+</script>
+</body>
+</html>
