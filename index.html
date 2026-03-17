@@ -5,145 +5,315 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>NRBO Target Dashboard</title>
 <style>
-  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-  :root {
-    --bg: #f5f5f3; --surface: #ffffff; --surface2: #f1efe8;
-    --text: #1a1a18; --text2: #5f5e5a; --text3: #888780;
-    --border: rgba(0,0,0,0.12); --border2: rgba(0,0,0,0.2);
-    --green: #1D9E75; --green-bg: #E1F5EE; --green-txt: #0F6E56;
-    --amber: #EF9F27; --amber-bg: #FAEEDA; --amber-txt: #854F0B;
-    --red: #E24B4A; --red-bg: #FCEBEB; --red-txt: #A32D2D;
-    --radius: 8px; --radius-lg: 12px;
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#f5f5f3;--surface:#ffffff;--surface2:#f1efe8;
+  --text:#1a1a18;--text2:#5f5e5a;--text3:#888780;
+  --border:rgba(0,0,0,0.12);--border2:rgba(0,0,0,0.2);
+  --radius:8px;--radius-lg:12px;
+  --green:#1D9E75;--green-bg:#E1F5EE;--green-txt:#0F6E56;
+  --amber:#EF9F27;--amber-bg:#FAEEDA;--amber-txt:#854F0B;
+  --red:#E24B4A;--red-bg:#FCEBEB;--red-txt:#A32D2D;
+}
+@media(prefers-color-scheme:dark){
+  :root{
+    --bg:#1c1c1a;--surface:#26261f;--surface2:#2c2c2a;
+    --text:#f0ede4;--text2:#b4b2a9;--text3:#888780;
+    --border:rgba(255,255,255,0.1);--border2:rgba(255,255,255,0.2);
+    --green-bg:#04342C;--green-txt:#9FE1CB;
+    --amber-bg:#412402;--amber-txt:#FAC775;
+    --red-bg:#501313;--red-txt:#F7C1C1;
   }
-  @media (prefers-color-scheme: dark) {
-    :root {
-      --bg: #1c1c1a; --surface: #26261f; --surface2: #2c2c2a;
-      --text: #f0ede4; --text2: #b4b2a9; --text3: #888780;
-      --border: rgba(255,255,255,0.1); --border2: rgba(255,255,255,0.2);
-      --green-bg: #04342C; --green-txt: #9FE1CB;
-      --amber-bg: #412402; --amber-txt: #FAC775;
-      --red-bg: #501313; --red-txt: #F7C1C1;
-    }
-  }
-  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; padding: 2rem 1rem; }
-  .container { max-width: 860px; margin: 0 auto; }
-  header { margin-bottom: 2rem; }
-  header h1 { font-size: 22px; font-weight: 500; }
-  header p { font-size: 14px; color: var(--text2); margin-top: 4px; }
-  .card { background: var(--surface); border: 0.5px solid var(--border); border-radius: var(--radius-lg); padding: 1.25rem 1.5rem; margin-bottom: 1.25rem; }
-  .card h2 { font-size: 15px; font-weight: 500; color: var(--text2); margin-bottom: 1rem; }
-  .input-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)); gap: 12px; }
-  .field { display: flex; flex-direction: column; gap: 5px; }
-  .field label { font-size: 13px; color: var(--text2); }
-  .field input {
-    padding: 8px 12px; border: 0.5px solid var(--border2); border-radius: var(--radius);
-    background: var(--surface2); color: var(--text); font-size: 15px;
-    outline: none; transition: border-color .15s;
-  }
-  .field input:focus { border-color: var(--green); }
-  .field input.target-input { border-color: var(--amber); font-weight: 500; }
-  .field input.target-input:focus { border-color: var(--amber); }
-  hr { border: none; border-top: 0.5px solid var(--border); margin: 1.25rem 0; }
-  .metric-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 10px; }
-  .metric { background: var(--surface2); border-radius: var(--radius); padding: .85rem 1rem; }
-  .metric .lbl { font-size: 12px; color: var(--text3); margin-bottom: 4px; }
-  .metric .val { font-size: 20px; font-weight: 500; color: var(--text); }
-  .metric .val.pos { color: var(--green); }
-  .metric .val.neg { color: var(--red); }
-  .deduct-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 8px; }
-  .deduct-row { display: flex; justify-content: space-between; align-items: center; background: var(--surface2); border-radius: var(--radius); padding: .65rem 1rem; }
-  .deduct-row .dn { font-size: 13px; color: var(--text2); }
-  .deduct-row .dv { font-size: 14px; font-weight: 500; color: var(--red); }
-  .nrbo-block { display: flex; gap: 12px; flex-wrap: wrap; margin-top: 1rem; }
-  .nrbo-block .metric { flex: 1; min-width: 150px; }
-  .nrbo-block .metric.hero .val { font-size: 28px; }
-  .track { background: var(--surface2); border-radius: var(--radius-lg); padding: 1.25rem; margin-top: .5rem; }
-  .track-top { display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 8px; margin-bottom: 1rem; }
-  .track-top .pct { font-size: 28px; font-weight: 500; }
-  .track-top .sub { font-size: 13px; color: var(--text2); margin-top: 4px; }
-  .badge { font-size: 12px; font-weight: 500; padding: 4px 12px; border-radius: var(--radius); }
-  .badge.green { background: var(--green-bg); color: var(--green-txt); }
-  .badge.amber { background: var(--amber-bg); color: var(--amber-txt); }
-  .badge.red { background: var(--red-bg); color: var(--red-txt); }
-  .bar-bg { background: var(--border); border-radius: 99px; height: 10px; overflow: hidden; margin-bottom: .85rem; }
-  .bar { height: 10px; border-radius: 99px; transition: width .4s, background .4s; background: var(--green); }
-  .bar.amber { background: var(--amber); }
-  .bar.red { background: var(--red); }
-  .track-bottom { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
-  .track-stat { background: var(--surface); border-radius: var(--radius); padding: .6rem .85rem; }
-  .track-stat .tsl { font-size: 12px; color: var(--text3); }
-  .track-stat .tsv { font-size: 15px; font-weight: 500; color: var(--text); margin-top: 2px; }
-  footer { text-align: center; font-size: 12px; color: var(--text3); margin-top: 2rem; }
-  @media (max-width: 480px) {
-    .track-bottom { grid-template-columns: 1fr; }
-    .nrbo-block { flex-direction: column; }
-  }
+}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;padding:2rem 1rem}
+.container{max-width:980px;margin:0 auto}
+header{margin-bottom:1.5rem}
+header h1{font-size:22px;font-weight:500}
+header p{font-size:14px;color:var(--text2);margin-top:4px}
+
+/* Quarter badge */
+.q-badge{display:inline-block;font-size:13px;font-weight:500;padding:4px 14px;border-radius:99px;background:var(--surface2);border:0.5px solid var(--border2);color:var(--text2);margin-top:8px}
+
+/* Tier tabs */
+.tier-tabs{display:flex;gap:0;margin-bottom:1.5rem;border:0.5px solid var(--border2);border-radius:var(--radius-lg);overflow:hidden;background:var(--surface2)}
+.tier-tab{flex:1;padding:.65rem 1rem;font-size:14px;font-weight:500;cursor:pointer;border:none;background:transparent;color:var(--text3);transition:background .15s,color .15s;text-align:center}
+.tier-tab:hover{background:var(--surface)}
+.tier-tab.active{color:var(--text)}
+
+/* Gold */
+.tier-tab.gold.active{background:linear-gradient(135deg,#FAEEDA,#FAC775);color:#633806;border-bottom:2px solid #EF9F27}
+/* Platinum */
+.tier-tab.platinum.active{background:linear-gradient(135deg,#E6F1FB,#B5D4F4);color:#0C447C;border-bottom:2px solid #378ADD}
+/* Black */
+.tier-tab.black.active{background:linear-gradient(135deg,#2C2C2A,#444441);color:#D3D1C7;border-bottom:2px solid #888780}
+
+.tier-panel{display:none}.tier-panel.active{display:block}
+
+.card{background:var(--surface);border:0.5px solid var(--border);border-radius:var(--radius-lg);padding:1.25rem 1.5rem;margin-bottom:1.25rem}
+.card h2{font-size:15px;font-weight:500;color:var(--text2);margin-bottom:1rem}
+.input-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(175px,1fr));gap:12px}
+.field{display:flex;flex-direction:column;gap:5px}
+.field label{font-size:13px;color:var(--text2)}
+.field input{padding:8px 12px;border:0.5px solid var(--border2);border-radius:var(--radius);background:var(--surface2);color:var(--text);font-size:15px;outline:none;transition:border-color .15s;width:100%}
+.field input:focus{border-color:var(--green)}
+.field input.tgt{border-color:var(--amber)}
+hr{border:none;border-top:0.5px solid var(--border);margin:1.25rem 0}
+.metric-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:10px}
+.metric{background:var(--surface2);border-radius:var(--radius);padding:.85rem 1rem}
+.metric .lbl{font-size:12px;color:var(--text3);margin-bottom:4px}
+.metric .val{font-size:20px;font-weight:500;color:var(--text)}
+.metric .val.pos{color:var(--green)}.metric .val.neg{color:var(--red)}
+.deduct-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:8px}
+.deduct-row{display:flex;justify-content:space-between;align-items:center;background:var(--surface2);border-radius:var(--radius);padding:.65rem 1rem}
+.deduct-row .dn{font-size:13px;color:var(--text2)}
+.deduct-row .dv{font-size:14px;font-weight:500;color:var(--red)}
+.nrbo-block{display:flex;gap:12px;flex-wrap:wrap;margin-top:1rem}
+.nrbo-block .metric{flex:1;min-width:150px}
+.nrbo-block .metric.hero .val{font-size:28px}
+.track{background:var(--surface2);border-radius:var(--radius-lg);padding:1.25rem;margin-top:.5rem}
+.track-top{display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:8px;margin-bottom:1rem}
+.track-top .pct{font-size:28px;font-weight:500}
+.track-top .sub{font-size:13px;color:var(--text2);margin-top:4px}
+.badge{font-size:12px;font-weight:500;padding:4px 12px;border-radius:var(--radius)}
+.badge.green{background:var(--green-bg);color:var(--green-txt)}
+.badge.amber{background:var(--amber-bg);color:var(--amber-txt)}
+.badge.red{background:var(--red-bg);color:var(--red-txt)}
+.bar-bg{background:var(--border);border-radius:99px;height:10px;overflow:hidden;margin-bottom:.85rem}
+.bar{height:10px;border-radius:99px;transition:width .4s,background .4s;background:var(--green)}
+.bar.amber{background:var(--amber)}.bar.red{background:var(--red)}
+.track-bottom{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:8px}
+.track-stat{background:var(--surface);border-radius:var(--radius);padding:.6rem .85rem}
+.track-stat .tsl{font-size:12px;color:var(--text3)}
+.track-stat .tsv{font-size:15px;font-weight:500;color:var(--text);margin-top:2px}
+
+/* Summary across tiers */
+.summary-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:10px;margin-bottom:1.25rem}
+.summary-tier{background:var(--surface);border:0.5px solid var(--border);border-radius:var(--radius-lg);padding:1rem 1.25rem}
+.summary-tier .tier-name{font-size:12px;font-weight:500;letter-spacing:.04em;text-transform:uppercase;margin-bottom:.5rem}
+.summary-tier.gold .tier-name{color:#854F0B}
+.summary-tier.platinum .tier-name{color:#185FA5}
+.summary-tier.black .tier-name{color:var(--text3)}
+.summary-tier .big{font-size:22px;font-weight:500}
+.summary-tier .prog-mini{margin-top:8px}
+.summary-tier .prog-mini .bar-bg{margin-bottom:4px}
+.summary-tier .prog-mini span{font-size:12px;color:var(--text3)}
+
+footer{text-align:center;font-size:12px;color:var(--text3);margin-top:2rem}
+@media(max-width:480px){.track-bottom{grid-template-columns:1fr}.nrbo-block{flex-direction:column}}
 </style>
 </head>
 <body>
 <div class="container">
   <header>
     <h1>NRBO Target Dashboard</h1>
-    <p>Enter actuals below — all figures calculate automatically.</p>
+    <p>Enter actuals per VIP tier — all figures calculate automatically.</p>
+    <div class="q-badge" id="q-label">Loading quarter...</div>
   </header>
 
-  <div class="card">
-    <h2>Inputs</h2>
-    <div class="input-grid">
-      <div class="field"><label>Total Deposit (€)</label><input type="number" id="dep" placeholder="0" min="0" oninput="calc()"></div>
-      <div class="field"><label>Total Withdrawal (€)</label><input type="number" id="with" placeholder="0" min="0" oninput="calc()"></div>
-      <div class="field"><label>Bonus Given (€)</label><input type="number" id="bonus" placeholder="0" min="0" oninput="calc()"></div>
-      <div class="field"><label>Cash Given (€)</label><input type="number" id="cash" placeholder="0" min="0" oninput="calc()"></div>
-      <div class="field"><label>CP Converted (€)</label><input type="number" id="cp" placeholder="0" min="0" oninput="calc()"></div>
-      <div class="field"><label>Quarterly NRBO Target (€)</label><input type="number" id="target" placeholder="0" min="0" class="target-input" oninput="calc()"></div>
-    </div>
-  </div>
-
-  <div class="card">
-    <h2>Key metrics</h2>
-    <div class="metric-grid">
-      <div class="metric"><div class="lbl">Net deposit</div><div class="val" id="v-nd">€0</div></div>
-      <div class="metric"><div class="lbl">Total bonus</div><div class="val" id="v-tb">€0</div></div>
-      <div class="metric"><div class="lbl">GGR</div><div class="val" id="v-ggr">€0</div></div>
-      <div class="metric"><div class="lbl">NGR</div><div class="val" id="v-ngr">€0</div></div>
-    </div>
-
-    <hr>
-
-    <h2>Deductions</h2>
-    <div class="deduct-grid">
-      <div class="deduct-row"><span class="dn">Provider fees (15% of GGR)</span><span class="dv" id="v-pf">-€0</span></div>
-      <div class="deduct-row"><span class="dn">Software fees (10% of NGR)</span><span class="dv" id="v-sf">-€0</span></div>
-      <div class="deduct-row"><span class="dn">Processing fees (5% of Net Deposit)</span><span class="dv" id="v-proc">-€0</span></div>
-      <div class="deduct-row"><span class="dn">Gaming tax (3% of NGR)</span><span class="dv" id="v-tax">-€0</span></div>
-      <div class="deduct-row"><span class="dn">Acquisition (15% of NGR)</span><span class="dv" id="v-acq">-€0</span></div>
-      <div class="deduct-row"><span class="dn">VAT (19% of GGR)</span><span class="dv" id="v-vat">-€0</span></div>
-    </div>
-
-    <hr>
-
-    <div class="nrbo-block">
-      <div class="metric"><div class="lbl">Total deductions</div><div class="val neg" id="v-totded">-€0</div></div>
-      <div class="metric hero"><div class="lbl">NRBO</div><div class="val" id="v-nrbo">€0</div></div>
-    </div>
-  </div>
-
-  <div class="card">
-    <h2>Quarterly target tracking</h2>
-    <div class="track">
-      <div class="track-top">
-        <div>
-          <div class="pct" id="v-pct">—</div>
-          <div class="sub" id="v-sub">Enter a quarterly NRBO target to see tracking</div>
-        </div>
-        <span class="badge green" id="v-badge" style="display:none">On target</span>
+  <!-- Combined summary -->
+  <div class="summary-grid" id="summary-grid">
+    <div class="summary-tier gold">
+      <div class="tier-name">Gold</div>
+      <div class="big pos" id="sum-nrbo-gold">€0</div>
+      <div class="prog-mini">
+        <div class="bar-bg"><div class="bar" id="sum-bar-gold" style="width:0%"></div></div>
+        <span id="sum-pct-gold">0% of target</span>
       </div>
-      <div class="bar-bg"><div class="bar" id="prog-bar" style="width:0%"></div></div>
-      <div class="track-bottom">
-        <div class="track-stat"><div class="tsl">Projected full-quarter NRBO</div><div class="tsv" id="v-proj">—</div></div>
-        <div class="track-stat"><div class="tsl">Remaining gap to target</div><div class="tsv" id="v-gap">—</div></div>
-        <div class="track-stat"><div class="tsl">Quarterly target</div><div class="tsv" id="v-tgt-disp">—</div></div>
-        <div class="track-stat"><div class="tsl">Current NRBO</div><div class="tsv" id="v-cur">€0</div></div>
+    </div>
+    <div class="summary-tier platinum">
+      <div class="tier-name">Platinum</div>
+      <div class="big pos" id="sum-nrbo-platinum">€0</div>
+      <div class="prog-mini">
+        <div class="bar-bg"><div class="bar" id="sum-bar-platinum" style="width:0%"></div></div>
+        <span id="sum-pct-platinum">0% of target</span>
+      </div>
+    </div>
+    <div class="summary-tier black">
+      <div class="tier-name">Black</div>
+      <div class="big pos" id="sum-nrbo-black">€0</div>
+      <div class="prog-mini">
+        <div class="bar-bg"><div class="bar" id="sum-bar-black" style="width:0%"></div></div>
+        <span id="sum-pct-black">0% of target</span>
+      </div>
+    </div>
+    <div class="summary-tier" style="border-color:var(--border2)">
+      <div class="tier-name" style="color:var(--text2)">Total NRBO</div>
+      <div class="big" id="sum-nrbo-total">€0</div>
+      <div class="prog-mini">
+        <div class="bar-bg"><div class="bar" id="sum-bar-total" style="width:0%"></div></div>
+        <span id="sum-pct-total">0% of combined target</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Tier tabs -->
+  <div class="tier-tabs">
+    <button class="tier-tab gold active" onclick="switchTier('gold')">Gold</button>
+    <button class="tier-tab platinum" onclick="switchTier('platinum')">Platinum</button>
+    <button class="tier-tab black" onclick="switchTier('black')">Black</button>
+  </div>
+
+  <!-- GOLD -->
+  <div class="tier-panel active" id="panel-gold">
+    <div class="card">
+      <h2>Gold — inputs</h2>
+      <div class="input-grid">
+        <div class="field"><label>Total Deposit (€)</label><input type="number" id="gold-dep" placeholder="0" min="0" oninput="calc('gold')"></div>
+        <div class="field"><label>Total Withdrawal (€)</label><input type="number" id="gold-with" placeholder="0" min="0" oninput="calc('gold')"></div>
+        <div class="field"><label>Bonus Given (€)</label><input type="number" id="gold-bonus" placeholder="0" min="0" oninput="calc('gold')"></div>
+        <div class="field"><label>Cash Given (€)</label><input type="number" id="gold-cash" placeholder="0" min="0" oninput="calc('gold')"></div>
+        <div class="field"><label>CP Converted (€)</label><input type="number" id="gold-cp" placeholder="0" min="0" oninput="calc('gold')"></div>
+        <div class="field"><label>Quarterly NRBO Target (€)</label><input type="number" id="gold-target" placeholder="0" min="0" class="tgt" oninput="calc('gold')"></div>
+      </div>
+    </div>
+    <div class="card" id="gold-results">
+      <h2>Key metrics</h2>
+      <div class="metric-grid">
+        <div class="metric"><div class="lbl">Net deposit</div><div class="val" id="gold-v-nd">€0</div></div>
+        <div class="metric"><div class="lbl">Total bonus</div><div class="val" id="gold-v-tb">€0</div></div>
+        <div class="metric"><div class="lbl">GGR</div><div class="val" id="gold-v-ggr">€0</div></div>
+        <div class="metric"><div class="lbl">NGR</div><div class="val" id="gold-v-ngr">€0</div></div>
+      </div>
+      <hr>
+      <h2>Deductions</h2>
+      <div class="deduct-grid">
+        <div class="deduct-row"><span class="dn">Provider fees (15% GGR)</span><span class="dv" id="gold-v-pf">-€0</span></div>
+        <div class="deduct-row"><span class="dn">Software fees (10% NGR)</span><span class="dv" id="gold-v-sf">-€0</span></div>
+        <div class="deduct-row"><span class="dn">Processing fees (5% ND)</span><span class="dv" id="gold-v-proc">-€0</span></div>
+        <div class="deduct-row"><span class="dn">Gaming tax (3% NGR)</span><span class="dv" id="gold-v-tax">-€0</span></div>
+        <div class="deduct-row"><span class="dn">Acquisition (15% NGR)</span><span class="dv" id="gold-v-acq">-€0</span></div>
+        <div class="deduct-row"><span class="dn">VAT (19% GGR)</span><span class="dv" id="gold-v-vat">-€0</span></div>
+      </div>
+      <hr>
+      <div class="nrbo-block">
+        <div class="metric"><div class="lbl">Total deductions</div><div class="val neg" id="gold-v-totded">-€0</div></div>
+        <div class="metric hero"><div class="lbl">NRBO</div><div class="val" id="gold-v-nrbo">€0</div></div>
+      </div>
+    </div>
+    <div class="card">
+      <h2>Quarterly target tracking — Gold</h2>
+      <div class="track">
+        <div class="track-top">
+          <div><div class="pct" id="gold-v-pct">—</div><div class="sub" id="gold-v-sub">Enter a target to see tracking</div></div>
+          <span class="badge green" id="gold-v-badge" style="display:none"></span>
+        </div>
+        <div class="bar-bg"><div class="bar" id="gold-prog-bar" style="width:0%"></div></div>
+        <div class="track-bottom">
+          <div class="track-stat"><div class="tsl">Projected quarter-end NRBO</div><div class="tsv" id="gold-v-proj">—</div></div>
+          <div class="track-stat"><div class="tsl">Remaining gap</div><div class="tsv" id="gold-v-gap">—</div></div>
+          <div class="track-stat"><div class="tsl">Target</div><div class="tsv" id="gold-v-tgt">—</div></div>
+          <div class="track-stat"><div class="tsl">Days left in quarter</div><div class="tsv" id="gold-v-days">—</div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- PLATINUM -->
+  <div class="tier-panel" id="panel-platinum">
+    <div class="card">
+      <h2>Platinum — inputs</h2>
+      <div class="input-grid">
+        <div class="field"><label>Total Deposit (€)</label><input type="number" id="platinum-dep" placeholder="0" min="0" oninput="calc('platinum')"></div>
+        <div class="field"><label>Total Withdrawal (€)</label><input type="number" id="platinum-with" placeholder="0" min="0" oninput="calc('platinum')"></div>
+        <div class="field"><label>Bonus Given (€)</label><input type="number" id="platinum-bonus" placeholder="0" min="0" oninput="calc('platinum')"></div>
+        <div class="field"><label>Cash Given (€)</label><input type="number" id="platinum-cash" placeholder="0" min="0" oninput="calc('platinum')"></div>
+        <div class="field"><label>CP Converted (€)</label><input type="number" id="platinum-cp" placeholder="0" min="0" oninput="calc('platinum')"></div>
+        <div class="field"><label>Quarterly NRBO Target (€)</label><input type="number" id="platinum-target" placeholder="0" min="0" class="tgt" oninput="calc('platinum')"></div>
+      </div>
+    </div>
+    <div class="card" id="platinum-results">
+      <h2>Key metrics</h2>
+      <div class="metric-grid">
+        <div class="metric"><div class="lbl">Net deposit</div><div class="val" id="platinum-v-nd">€0</div></div>
+        <div class="metric"><div class="lbl">Total bonus</div><div class="val" id="platinum-v-tb">€0</div></div>
+        <div class="metric"><div class="lbl">GGR</div><div class="val" id="platinum-v-ggr">€0</div></div>
+        <div class="metric"><div class="lbl">NGR</div><div class="val" id="platinum-v-ngr">€0</div></div>
+      </div>
+      <hr>
+      <h2>Deductions</h2>
+      <div class="deduct-grid">
+        <div class="deduct-row"><span class="dn">Provider fees (15% GGR)</span><span class="dv" id="platinum-v-pf">-€0</span></div>
+        <div class="deduct-row"><span class="dn">Software fees (10% NGR)</span><span class="dv" id="platinum-v-sf">-€0</span></div>
+        <div class="deduct-row"><span class="dn">Processing fees (5% ND)</span><span class="dv" id="platinum-v-proc">-€0</span></div>
+        <div class="deduct-row"><span class="dn">Gaming tax (3% NGR)</span><span class="dv" id="platinum-v-tax">-€0</span></div>
+        <div class="deduct-row"><span class="dn">Acquisition (15% NGR)</span><span class="dv" id="platinum-v-acq">-€0</span></div>
+        <div class="deduct-row"><span class="dn">VAT (19% GGR)</span><span class="dv" id="platinum-v-vat">-€0</span></div>
+      </div>
+      <hr>
+      <div class="nrbo-block">
+        <div class="metric"><div class="lbl">Total deductions</div><div class="val neg" id="platinum-v-totded">-€0</div></div>
+        <div class="metric hero"><div class="lbl">NRBO</div><div class="val" id="platinum-v-nrbo">€0</div></div>
+      </div>
+    </div>
+    <div class="card">
+      <h2>Quarterly target tracking — Platinum</h2>
+      <div class="track">
+        <div class="track-top">
+          <div><div class="pct" id="platinum-v-pct">—</div><div class="sub" id="platinum-v-sub">Enter a target to see tracking</div></div>
+          <span class="badge green" id="platinum-v-badge" style="display:none"></span>
+        </div>
+        <div class="bar-bg"><div class="bar" id="platinum-prog-bar" style="width:0%"></div></div>
+        <div class="track-bottom">
+          <div class="track-stat"><div class="tsl">Projected quarter-end NRBO</div><div class="tsv" id="platinum-v-proj">—</div></div>
+          <div class="track-stat"><div class="tsl">Remaining gap</div><div class="tsv" id="platinum-v-gap">—</div></div>
+          <div class="track-stat"><div class="tsl">Target</div><div class="tsv" id="platinum-v-tgt">—</div></div>
+          <div class="track-stat"><div class="tsl">Days left in quarter</div><div class="tsv" id="platinum-v-days">—</div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- BLACK -->
+  <div class="tier-panel" id="panel-black">
+    <div class="card">
+      <h2>Black — inputs</h2>
+      <div class="input-grid">
+        <div class="field"><label>Total Deposit (€)</label><input type="number" id="black-dep" placeholder="0" min="0" oninput="calc('black')"></div>
+        <div class="field"><label>Total Withdrawal (€)</label><input type="number" id="black-with" placeholder="0" min="0" oninput="calc('black')"></div>
+        <div class="field"><label>Bonus Given (€)</label><input type="number" id="black-bonus" placeholder="0" min="0" oninput="calc('black')"></div>
+        <div class="field"><label>Cash Given (€)</label><input type="number" id="black-cash" placeholder="0" min="0" oninput="calc('black')"></div>
+        <div class="field"><label>CP Converted (€)</label><input type="number" id="black-cp" placeholder="0" min="0" oninput="calc('black')"></div>
+        <div class="field"><label>Quarterly NRBO Target (€)</label><input type="number" id="black-target" placeholder="0" min="0" class="tgt" oninput="calc('black')"></div>
+      </div>
+    </div>
+    <div class="card" id="black-results">
+      <h2>Key metrics</h2>
+      <div class="metric-grid">
+        <div class="metric"><div class="lbl">Net deposit</div><div class="val" id="black-v-nd">€0</div></div>
+        <div class="metric"><div class="lbl">Total bonus</div><div class="val" id="black-v-tb">€0</div></div>
+        <div class="metric"><div class="lbl">GGR</div><div class="val" id="black-v-ggr">€0</div></div>
+        <div class="metric"><div class="lbl">NGR</div><div class="val" id="black-v-ngr">€0</div></div>
+      </div>
+      <hr>
+      <h2>Deductions</h2>
+      <div class="deduct-grid">
+        <div class="deduct-row"><span class="dn">Provider fees (15% GGR)</span><span class="dv" id="black-v-pf">-€0</span></div>
+        <div class="deduct-row"><span class="dn">Software fees (10% NGR)</span><span class="dv" id="black-v-sf">-€0</span></div>
+        <div class="deduct-row"><span class="dn">Processing fees (5% ND)</span><span class="dv" id="black-v-proc">-€0</span></div>
+        <div class="deduct-row"><span class="dn">Gaming tax (3% NGR)</span><span class="dv" id="black-v-tax">-€0</span></div>
+        <div class="deduct-row"><span class="dn">Acquisition (15% NGR)</span><span class="dv" id="black-v-acq">-€0</span></div>
+        <div class="deduct-row"><span class="dn">VAT (19% GGR)</span><span class="dv" id="black-v-vat">-€0</span></div>
+      </div>
+      <hr>
+      <div class="nrbo-block">
+        <div class="metric"><div class="lbl">Total deductions</div><div class="val neg" id="black-v-totded">-€0</div></div>
+        <div class="metric hero"><div class="lbl">NRBO</div><div class="val" id="black-v-nrbo">€0</div></div>
+      </div>
+    </div>
+    <div class="card">
+      <h2>Quarterly target tracking — Black</h2>
+      <div class="track">
+        <div class="track-top">
+          <div><div class="pct" id="black-v-pct">—</div><div class="sub" id="black-v-sub">Enter a target to see tracking</div></div>
+          <span class="badge green" id="black-v-badge" style="display:none"></span>
+        </div>
+        <div class="bar-bg"><div class="bar" id="black-prog-bar" style="width:0%"></div></div>
+        <div class="track-bottom">
+          <div class="track-stat"><div class="tsl">Projected quarter-end NRBO</div><div class="tsv" id="black-v-proj">—</div></div>
+          <div class="track-stat"><div class="tsl">Remaining gap</div><div class="tsv" id="black-v-gap">—</div></div>
+          <div class="track-stat"><div class="tsl">Target</div><div class="tsv" id="black-v-tgt">—</div></div>
+          <div class="track-stat"><div class="tsl">Days left in quarter</div><div class="tsv" id="black-v-days">—</div></div>
+        </div>
       </div>
     </div>
   </div>
@@ -152,90 +322,133 @@
 </div>
 
 <script>
-function fmt(n) {
-  const abs = Math.abs(n).toLocaleString('en-IE', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-  return (n < 0 ? '-€' : '€') + abs;
+const TIERS = ['gold','platinum','black'];
+
+function fmt(n){
+  const abs=Math.abs(n).toLocaleString('en-IE',{minimumFractionDigits:2,maximumFractionDigits:2});
+  return(n<0?'-€':'€')+abs;
 }
 
-function calc() {
-  const dep    = parseFloat(document.getElementById('dep').value)   || 0;
-  const wth    = parseFloat(document.getElementById('with').value)  || 0;
-  const bon    = parseFloat(document.getElementById('bonus').value) || 0;
-  const csh    = parseFloat(document.getElementById('cash').value)  || 0;
-  const cp     = parseFloat(document.getElementById('cp').value)    || 0;
-  const tgt    = parseFloat(document.getElementById('target').value)|| 0;
+function getQuarterInfo(){
+  const now=new Date();
+  const m=now.getMonth();
+  const q=Math.floor(m/3);
+  const qNames=['Q1 (Jan–Mar)','Q2 (Apr–Jun)','Q3 (Jul–Sep)','Q4 (Oct–Dec)'];
+  const qStart=new Date(now.getFullYear(),q*3,1);
+  const qEnd=new Date(now.getFullYear(),q*3+3,0,23,59,59);
+  const elapsed=(now-qStart)/(qEnd-qStart);
+  const daysLeft=Math.ceil((qEnd-now)/(1000*60*60*24));
+  return{name:qNames[q],elapsed,daysLeft,qEnd};
+}
 
-  const nd   = dep - wth;
-  const tb   = bon + csh + cp;
-  const ggr  = nd + tb;
-  const ngr  = nd;
-  const pf   = 0.15 * ggr;
-  const sf   = 0.10 * ngr;
-  const proc = 0.05 * nd;
-  const tax  = 0.03 * ngr;
-  const acq  = 0.15 * ngr;
-  const vat  = 0.19 * ggr;
-  const totDed = pf + sf + proc + tax + acq + vat;
-  const nrbo = ngr - pf - sf - proc - tax - acq - vat;
+function calc(tier){
+  const v=id=>parseFloat(document.getElementById(tier+'-'+id).value)||0;
+  const dep=v('dep'),wth=v('with'),bon=v('bonus'),csh=v('cash'),cp=v('cp'),tgt=v('target');
+  const nd=dep-wth,tb=bon+csh+cp,ggr=nd+tb,ngr=nd;
+  const pf=0.15*ggr,sf=0.10*ngr,proc=0.05*nd,tax=0.03*ngr,acq=0.15*ngr,vat=0.19*ggr;
+  const totDed=pf+sf+proc+tax+acq+vat;
+  const nrbo=ngr-pf-sf-proc-tax-acq-vat;
+  const s=id=>document.getElementById(tier+'-'+id);
 
-  document.getElementById('v-nd').textContent   = fmt(nd);
-  document.getElementById('v-tb').textContent   = fmt(tb);
-  document.getElementById('v-ggr').textContent  = fmt(ggr);
-  document.getElementById('v-ngr').textContent  = fmt(ngr);
-  document.getElementById('v-pf').textContent   = '-' + fmt(pf);
-  document.getElementById('v-sf').textContent   = '-' + fmt(sf);
-  document.getElementById('v-proc').textContent = '-' + fmt(proc);
-  document.getElementById('v-tax').textContent  = '-' + fmt(tax);
-  document.getElementById('v-acq').textContent  = '-' + fmt(acq);
-  document.getElementById('v-vat').textContent  = '-' + fmt(vat);
-  document.getElementById('v-totded').textContent = '-' + fmt(totDed);
+  s('v-nd').textContent=fmt(nd);
+  s('v-tb').textContent=fmt(tb);
+  s('v-ggr').textContent=fmt(ggr);
+  s('v-ngr').textContent=fmt(ngr);
+  s('v-pf').textContent='-'+fmt(pf);
+  s('v-sf').textContent='-'+fmt(sf);
+  s('v-proc').textContent='-'+fmt(proc);
+  s('v-tax').textContent='-'+fmt(tax);
+  s('v-acq').textContent='-'+fmt(acq);
+  s('v-vat').textContent='-'+fmt(vat);
+  s('v-totded').textContent='-'+fmt(totDed);
 
-  const nrboEl = document.getElementById('v-nrbo');
-  nrboEl.textContent = fmt(nrbo);
-  nrboEl.className = 'val ' + (nrbo >= 0 ? 'pos' : 'neg');
-  document.getElementById('v-cur').textContent = fmt(nrbo);
+  const nrboEl=s('v-nrbo');
+  nrboEl.textContent=fmt(nrbo);
+  nrboEl.className='val '+(nrbo>=0?'pos':'neg');
 
-  if (tgt > 0) {
-    const pctNum = (nrbo / tgt) * 100;
-    const pctClamped = Math.max(0, Math.min(pctNum, 100));
-    const gap = tgt - nrbo;
+  const qi=getQuarterInfo();
+  s('v-days').textContent=qi.daysLeft+' days';
 
-    document.getElementById('v-pct').textContent = pctNum.toFixed(1) + '%';
-    document.getElementById('v-sub').textContent = gap > 0
-      ? fmt(gap) + ' still needed to hit target'
-      : 'Target achieved!';
-    document.getElementById('v-tgt-disp').textContent = fmt(tgt);
-    document.getElementById('v-gap').textContent = gap > 0 ? fmt(gap) : '—';
+  if(tgt>0){
+    const pctNum=(nrbo/tgt)*100;
+    const pctClamped=Math.max(0,Math.min(pctNum,100));
+    const gap=tgt-nrbo;
+    const proj=qi.elapsed>0?nrbo/qi.elapsed:0;
 
-    const bar = document.getElementById('prog-bar');
-    bar.style.width = pctClamped + '%';
-    bar.className = 'bar' + (pctClamped >= 100 ? '' : pctClamped >= 60 ? ' amber' : ' red');
+    s('v-pct').textContent=pctNum.toFixed(1)+'%';
+    s('v-sub').textContent=gap>0?fmt(gap)+' still needed':'Target achieved!';
+    s('v-tgt').textContent=fmt(tgt);
+    s('v-gap').textContent=gap>0?fmt(gap):'—';
+    s('v-proj').textContent=fmt(proj);
 
-    const badge = document.getElementById('v-badge');
-    badge.style.display = 'inline-block';
-    if (pctClamped >= 100) { badge.textContent = 'On target';      badge.className = 'badge green'; }
-    else if (pctClamped >= 60) { badge.textContent = 'At risk';    badge.className = 'badge amber'; }
-    else                    { badge.textContent = 'Behind target'; badge.className = 'badge red';   }
+    const bar=document.getElementById(tier+'-prog-bar');
+    bar.style.width=pctClamped+'%';
+    bar.className='bar'+(pctClamped>=100?'':pctClamped>=60?' amber':' red');
 
-    const now = new Date();
-    const qStart = new Date(now.getFullYear(), Math.floor(now.getMonth() / 3) * 3, 1);
-    const qEnd   = new Date(now.getFullYear(), Math.floor(now.getMonth() / 3) * 3 + 3, 0, 23, 59, 59);
-    const elapsed = (now - qStart) / (qEnd - qStart);
-    const proj = elapsed > 0 ? nrbo / elapsed : 0;
-    document.getElementById('v-proj').textContent = fmt(proj);
+    const badge=s('v-badge');
+    badge.style.display='inline-block';
+    if(pctClamped>=100){badge.textContent='On target';badge.className='badge green';}
+    else if(pctClamped>=60){badge.textContent='At risk';badge.className='badge amber';}
+    else{badge.textContent='Behind target';badge.className='badge red';}
   } else {
-    document.getElementById('v-pct').textContent = '—';
-    document.getElementById('v-sub').textContent = 'Enter a quarterly NRBO target to see tracking';
-    document.getElementById('v-tgt-disp').textContent = '—';
-    document.getElementById('v-gap').textContent = '—';
-    document.getElementById('v-proj').textContent = '—';
-    document.getElementById('prog-bar').style.width = '0%';
-    document.getElementById('prog-bar').className = 'bar';
-    document.getElementById('v-badge').style.display = 'none';
+    s('v-pct').textContent='—';
+    s('v-sub').textContent='Enter a quarterly NRBO target to see tracking';
+    s('v-tgt').textContent='—';
+    s('v-gap').textContent='—';
+    s('v-proj').textContent='—';
+    document.getElementById(tier+'-prog-bar').style.width='0%';
+    document.getElementById(tier+'-prog-bar').className='bar';
+    s('v-badge').style.display='none';
   }
+
+  updateSummary();
 }
 
-calc();
+function updateSummary(){
+  const qi=getQuarterInfo();
+  let totalNrbo=0,totalTgt=0;
+  TIERS.forEach(tier=>{
+    const v=id=>parseFloat(document.getElementById(tier+'-'+id).value)||0;
+    const nd=v('dep')-v('with'),tb=v('bonus')+v('cash')+v('cp'),ggr=nd+tb,ngr=nd;
+    const nrbo=ngr-0.15*ggr-0.10*ngr-0.05*nd-0.03*ngr-0.15*ngr-0.19*ggr;
+    const tgt=v('target');
+    totalNrbo+=nrbo;totalTgt+=tgt;
+
+    const nrboEl=document.getElementById('sum-nrbo-'+tier);
+    nrboEl.textContent=fmt(nrbo);
+    nrboEl.className='big '+(nrbo>=0?'pos':'neg');
+
+    const bar=document.getElementById('sum-bar-'+tier);
+    const pct=tgt>0?Math.max(0,Math.min((nrbo/tgt)*100,100)):0;
+    bar.style.width=pct+'%';
+    bar.className='bar'+(pct>=100?'':pct>=60?' amber':' red');
+    document.getElementById('sum-pct-'+tier).textContent=tgt>0?(nrbo/tgt*100).toFixed(1)+'% of target':'No target set';
+  });
+
+  const totalEl=document.getElementById('sum-nrbo-total');
+  totalEl.textContent=fmt(totalNrbo);
+  totalEl.className='big '+(totalNrbo>=0?'pos':'neg');
+  const tp=totalTgt>0?Math.max(0,Math.min((totalNrbo/totalTgt)*100,100)):0;
+  const tb=document.getElementById('sum-bar-total');
+  tb.style.width=tp+'%';
+  tb.className='bar'+(tp>=100?'':tp>=60?' amber':' red');
+  document.getElementById('sum-pct-total').textContent=totalTgt>0?(totalNrbo/totalTgt*100).toFixed(1)+'% of combined target':'No targets set';
+}
+
+function switchTier(tier){
+  TIERS.forEach(t=>{
+    document.getElementById('panel-'+t).classList.toggle('active',t===tier);
+    document.querySelector('.tier-tab.'+t).classList.toggle('active',t===tier);
+  });
+}
+
+// Set quarter label
+(function(){
+  const qi=getQuarterInfo();
+  document.getElementById('q-label').textContent=qi.name+' — '+qi.daysLeft+' days remaining';
+})();
+
+TIERS.forEach(t=>calc(t));
 </script>
 </body>
 </html>
