@@ -175,9 +175,13 @@ hr{border:none;border-top:0.5px solid var(--border);margin:1.25rem 0}
 
 <!-- ── SIDEBAR ── -->
 <nav class="sidebar">
-  <div class="sidebar-logo">
-    <span>VIP Dashboard</span>
+  <div class="sidebar-logo" style="cursor:pointer" onclick="window.location.href='index.html'">
+    <span>Team Portal</span>
     <sub id="nav-q-label">Loading...</sub>
+    <sub style="margin-top:4px;font-size:10px;color:var(--text3);display:flex;align-items:center;gap:3px">
+      <svg width="8" height="8" viewBox="0 0 10 10" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M7 5H1M3 3L1 5l2 2"/></svg>
+      Back to home
+    </sub>
   </div>
   <div class="nav-section">Performance</div>
   <button class="nav-item active" onclick="showPage('nrbo',this)">
