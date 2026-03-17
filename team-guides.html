@@ -5,244 +5,218 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>HNV Team Wiki</title>
 <style>
-  :root {
-    --sidebar-width: 240px;
-    --accent: #534AB7;
-    --accent-light: #EEEDFE;
-    --accent-mid: #AFA9EC;
-    --text: #1a1a1a;
-    --text-muted: #5a5a5a;
-    --bg: #ffffff;
-    --bg-secondary: #f7f7f5;
-    --border: rgba(0,0,0,0.1);
-    --tag-bg: #E1F5EE;
-    --tag-text: #0F6E56;
-    --gold: #FAC775;
-    --gold-text: #633806;
-    --plat: #D3D1C7;
-    --plat-text: #2C2C2A;
-    --black-tier: #2C2C2A;
-    --black-text: #F1EFE8;
-    --silver: #E6F1FB;
-    --silver-text: #0C447C;
-  }
-  @media (prefers-color-scheme: dark) {
-    :root {
-      --text: #e8e8e8;
-      --text-muted: #aaaaaa;
-      --bg: #1c1c1c;
-      --bg-secondary: #252525;
-      --border: rgba(255,255,255,0.1);
-      --accent-light: #26215C;
-      --accent-mid: #7F77DD;
-    }
-  }
-  * { box-sizing: border-box; margin: 0; padding: 0; }
-  body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; font-size: 15px; color: var(--text); background: var(--bg); display: flex; min-height: 100vh; }
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap');
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+:root{
+  --bg:#0e0f11;--bg2:#16181c;--bg3:#1d1f24;--bg4:#24272e;
+  --border:rgba(255,255,255,0.08);--border2:rgba(255,255,255,0.14);
+  --text:#e8e9eb;--text2:#9a9da6;--text3:#5e6170;
+  --accent:#4f7ef8;--accent-glow:rgba(79,126,248,0.15);
+  --green:#34c97e;--green-bg:rgba(52,201,126,0.1);
+  --red:#f05252;--amber:#f5a623;--purple:#a78bfa;
+  --teal:#2dd4bf;--gold:#f5c842;--gold-bg:rgba(245,200,66,0.12);
+  --radius:10px;--radius-lg:14px;
+  --font:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
+  --sidebar:240px;
+}
+html{font-size:14px;}
+body{font-family:var(--font);background:var(--bg);color:var(--text);min-height:100vh;line-height:1.5;display:flex;flex-direction:column;}
 
-  /* Sidebar */
-  #sidebar {
-    width: var(--sidebar-width);
-    min-height: 100vh;
-    background: var(--bg-secondary);
-    border-right: 0.5px solid var(--border);
-    padding: 1.5rem 0;
-    position: sticky;
-    top: 0;
-    height: 100vh;
-    overflow-y: auto;
-    flex-shrink: 0;
-  }
-  .sidebar-logo {
-    padding: 0 1.25rem 1.25rem;
-    border-bottom: 0.5px solid var(--border);
-    margin-bottom: 1rem;
-  }
-  .sidebar-logo .brand { font-size: 13px; color: var(--text-muted); font-weight: 500; text-transform: uppercase; letter-spacing: 0.06em; }
-  .sidebar-logo .title { font-size: 17px; font-weight: 500; color: var(--text); margin-top: 4px; }
-  .sidebar-logo .version { font-size: 11px; color: var(--text-muted); margin-top: 2px; }
+/* ── Sidebar ── */
+#sidebar{
+  width:var(--sidebar);min-height:100vh;background:var(--bg2);
+  border-right:1px solid var(--border);padding:1.5rem 0;
+  position:fixed;top:0;left:0;height:100vh;overflow-y:auto;z-index:100;
+}
+#sidebar::-webkit-scrollbar{width:4px;}
+#sidebar::-webkit-scrollbar-thumb{background:var(--bg4);border-radius:2px;}
 
-  .nav-section { margin-bottom: 0.25rem; }
-  .nav-section-label { font-size: 11px; font-weight: 500; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.08em; padding: 0.75rem 1.25rem 0.25rem; }
-  .nav-link { display: flex; align-items: center; gap: 8px; padding: 0.45rem 1.25rem; font-size: 13.5px; color: var(--text-muted); cursor: pointer; border-left: 2px solid transparent; transition: all 0.15s; text-decoration: none; }
-  .nav-link:hover { color: var(--text); background: var(--border); }
-  .nav-link.active { color: var(--accent); background: var(--accent-light); border-left-color: var(--accent); font-weight: 500; }
-  .nav-dot { width: 5px; height: 5px; border-radius: 50%; background: currentColor; opacity: 0.5; flex-shrink: 0; }
+.sidebar-logo{padding:0 1.25rem 1.25rem;border-bottom:1px solid var(--border);margin-bottom:1rem;}
+.sidebar-logo .brand{font-size:10px;font-weight:600;letter-spacing:0.08em;color:var(--text3);text-transform:uppercase;}
+.sidebar-logo .title{font-size:16px;font-weight:600;color:var(--text);margin-top:4px;letter-spacing:-0.01em;}
+.sidebar-logo .version{font-size:11px;color:var(--text3);margin-top:3px;}
 
-  /* Main content */
-  #main { flex: 1; padding: 2.5rem 2.5rem 4rem; max-width: 900px; }
+.nav-section{margin-bottom:4px;}
+.nav-label{font-size:10px;font-weight:600;letter-spacing:0.08em;text-transform:uppercase;color:var(--text3);padding:0.75rem 1.25rem 0.3rem;}
+.nav-link{display:flex;align-items:center;gap:8px;padding:0.42rem 1.25rem;font-size:13px;color:var(--text2);cursor:pointer;border-left:2px solid transparent;transition:all 0.14s;text-decoration:none;}
+.nav-link:hover{color:var(--text);background:rgba(255,255,255,0.04);}
+.nav-link.active{color:var(--accent);background:var(--accent-glow);border-left-color:var(--accent);font-weight:500;}
+.nav-dot{width:4px;height:4px;border-radius:50%;background:currentColor;opacity:0.5;flex-shrink:0;}
 
-  /* Page sections */
-  .wiki-section { display: none; }
-  .wiki-section.active { display: block; }
+/* ── Main ── */
+#main{margin-left:var(--sidebar);flex:1;padding:2.5rem 2.5rem 5rem;max-width:calc(var(--sidebar) + 860px);}
 
-  /* Page header */
-  .page-header { margin-bottom: 2rem; padding-bottom: 1.25rem; border-bottom: 0.5px solid var(--border); }
-  .page-header .breadcrumb { font-size: 12px; color: var(--text-muted); margin-bottom: 6px; }
-  .page-header h1 { font-size: 24px; font-weight: 500; color: var(--text); }
-  .page-header .subtitle { font-size: 14px; color: var(--text-muted); margin-top: 6px; line-height: 1.5; }
-  .page-header .meta { margin-top: 12px; display: flex; gap: 16px; }
-  .page-header .meta span { font-size: 12px; color: var(--text-muted); }
-  .page-header .meta strong { color: var(--text); }
+/* ── Sections ── */
+.wiki-section{display:none;}
+.wiki-section.active{display:block;}
 
-  /* Content blocks */
-  h2 { font-size: 18px; font-weight: 500; color: var(--text); margin: 2rem 0 0.75rem; }
-  h3 { font-size: 15px; font-weight: 500; color: var(--text); margin: 1.5rem 0 0.5rem; }
-  p { font-size: 14px; line-height: 1.7; color: var(--text-muted); margin-bottom: 0.75rem; }
-  p strong { color: var(--text); font-weight: 500; }
-  ul { padding-left: 1.25rem; margin-bottom: 0.75rem; }
-  li { font-size: 14px; line-height: 1.7; color: var(--text-muted); margin-bottom: 0.25rem; }
-  li strong { color: var(--text); font-weight: 500; }
+/* ── Page header ── */
+.page-header{margin-bottom:2rem;padding-bottom:1.25rem;border-bottom:1px solid var(--border);}
+.breadcrumb{font-size:11px;color:var(--text3);margin-bottom:6px;letter-spacing:0.03em;}
+.page-header h1{font-size:22px;font-weight:600;color:var(--text);letter-spacing:-0.02em;}
+.page-header .subtitle{font-size:13px;color:var(--text2);margin-top:6px;line-height:1.6;}
+.meta-row{display:flex;gap:16px;margin-top:12px;flex-wrap:wrap;}
+.meta-item{font-size:11px;color:var(--text3);}
+.meta-item strong{color:var(--text2);}
 
-  /* Callout boxes */
-  .callout { border-left: 3px solid var(--accent); background: var(--accent-light); border-radius: 0 8px 8px 0; padding: 0.75rem 1rem; margin: 1rem 0; }
-  .callout p { margin: 0; font-size: 13.5px; color: var(--text); }
-  .callout.warning { border-left-color: #BA7517; background: #FAEEDA; }
-  .callout.warning p { color: #633806; }
-  .callout.success { border-left-color: #3B6D11; background: #EAF3DE; }
-  .callout.success p { color: #27500A; }
+/* ── Typography ── */
+h2{font-size:15px;font-weight:600;color:var(--text);margin:2rem 0 0.65rem;letter-spacing:-0.01em;}
+h3{font-size:13px;font-weight:600;color:var(--text);margin:1.25rem 0 0.4rem;}
+p{font-size:13px;line-height:1.75;color:var(--text2);margin-bottom:0.65rem;}
+p strong{color:var(--text);font-weight:500;}
+ul{padding-left:1.1rem;margin-bottom:0.65rem;}
+li{font-size:13px;line-height:1.7;color:var(--text2);margin-bottom:0.2rem;}
+li strong{color:var(--text);font-weight:500;}
 
-  /* Tier cards */
-  .tier-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 10px; margin: 1rem 0; }
-  .tier-card { border-radius: 10px; padding: 0.85rem 0.9rem; border: 0.5px solid var(--border); }
-  .tier-card .tier-name { font-size: 11px; font-weight: 500; text-transform: uppercase; letter-spacing: 0.07em; margin-bottom: 4px; }
-  .tier-card .tier-label { font-size: 14px; font-weight: 500; margin-bottom: 8px; }
-  .tier-card .tier-owner { font-size: 12px; opacity: 0.8; }
-  .tier-card .tier-desc { font-size: 12px; margin-top: 6px; opacity: 0.75; line-height: 1.5; }
-  .tier-silver { background: var(--silver); }
-  .tier-silver .tier-name, .tier-silver .tier-label { color: var(--silver-text); }
-  .tier-silver .tier-owner, .tier-silver .tier-desc { color: #185FA5; }
-  .tier-gold { background: var(--gold); }
-  .tier-gold .tier-name, .tier-gold .tier-label { color: var(--gold-text); }
-  .tier-gold .tier-owner, .tier-gold .tier-desc { color: #854F0B; }
-  .tier-platinum { background: var(--plat); }
-  .tier-platinum .tier-name, .tier-platinum .tier-label { color: var(--plat-text); }
-  .tier-platinum .tier-owner, .tier-platinum .tier-desc { color: #444441; }
-  .tier-black { background: var(--black-tier); }
-  .tier-black .tier-name, .tier-black .tier-label, .tier-black .tier-owner, .tier-black .tier-desc { color: var(--black-text); }
+/* ── Callouts ── */
+.callout{border-left:2px solid var(--accent);background:var(--accent-glow);border-radius:0 var(--radius) var(--radius) 0;padding:0.7rem 1rem;margin:0.85rem 0;}
+.callout p{margin:0;font-size:13px;color:var(--text2);}
+.callout.warn{border-left-color:var(--amber);background:rgba(245,166,35,0.1);}
+.callout.warn p{color:#c8882a;}
+.callout.success{border-left-color:var(--green);background:var(--green-bg);}
+.callout.success p{color:#2aad65;}
+.callout code{font-size:12px;background:rgba(255,255,255,0.06);padding:2px 6px;border-radius:4px;color:var(--text);}
 
-  /* SLA table */
-  table { width: 100%; border-collapse: collapse; font-size: 13px; margin: 1rem 0; }
-  thead tr { background: var(--bg-secondary); }
-  th { padding: 8px 12px; text-align: left; font-weight: 500; color: var(--text); font-size: 12px; text-transform: uppercase; letter-spacing: 0.05em; border-bottom: 0.5px solid var(--border); }
-  td { padding: 8px 12px; color: var(--text-muted); border-bottom: 0.5px solid var(--border); line-height: 1.5; vertical-align: top; }
-  tr:last-child td { border-bottom: none; }
-  .pill { display: inline-block; font-size: 11px; padding: 2px 8px; border-radius: 20px; font-weight: 500; white-space: nowrap; }
-  .pill-vip { background: var(--plat); color: var(--plat-text); }
-  .pill-ret { background: var(--tag-bg); color: var(--tag-text); }
-  .pill-sup { background: var(--silver); color: var(--silver-text); }
-  .pill-black { background: var(--black-tier); color: var(--black-text); }
+/* ── Tier cards ── */
+.tier-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin:1rem 0;}
+.tier-card{border-radius:var(--radius);padding:0.9rem 1rem;border:1px solid var(--border2);}
+.tier-card .t-name{font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:0.07em;margin-bottom:5px;}
+.tier-card .t-label{font-size:15px;font-weight:600;margin-bottom:6px;letter-spacing:-0.01em;}
+.tier-card .t-owner{font-size:11px;opacity:0.75;}
+.tier-card .t-desc{font-size:11px;margin-top:5px;opacity:0.6;line-height:1.5;}
+/* Silver */
+.t-silver{background:rgba(160,170,190,0.07);}
+.t-silver .t-name,.t-silver .t-label{color:#a0aabe;}
+.t-silver .t-owner,.t-silver .t-desc{color:#7a8498;}
+/* Gold */
+.t-gold{background:var(--gold-bg);}
+.t-gold .t-name,.t-gold .t-label{color:var(--gold);}
+.t-gold .t-owner,.t-gold .t-desc{color:#b8982f;}
+/* Platinum */
+.t-platinum{background:rgba(45,212,191,0.08);}
+.t-platinum .t-name,.t-platinum .t-label{color:var(--teal);}
+.t-platinum .t-owner,.t-platinum .t-desc{color:#1f9686;}
+/* Black */
+.t-black{background:rgba(255,255,255,0.04);border-color:rgba(255,255,255,0.18);}
+.t-black .t-name,.t-black .t-label{color:var(--text);}
+.t-black .t-owner,.t-black .t-desc{color:var(--text3);}
 
-  /* Shift schedule */
-  .shift-block { border: 0.5px solid var(--border); border-radius: 10px; overflow: hidden; margin: 1rem 0; }
-  .shift-row { display: grid; grid-template-columns: 140px 120px 1fr 180px; gap: 0; border-bottom: 0.5px solid var(--border); }
-  .shift-row:last-child { border-bottom: none; }
-  .shift-row.header { background: var(--bg-secondary); }
-  .shift-cell { padding: 8px 12px; font-size: 13px; color: var(--text-muted); }
-  .shift-cell.header-cell { font-size: 11px; font-weight: 500; color: var(--text); text-transform: uppercase; letter-spacing: 0.05em; }
-  .shift-time { font-weight: 500; color: var(--text); font-size: 12px; }
-  .shift-focus { font-weight: 500; color: var(--text); }
+/* ── Pills ── */
+.pill{display:inline-block;font-size:10px;font-weight:600;letter-spacing:0.04em;padding:2px 9px;border-radius:20px;white-space:nowrap;}
+.pill-silver{background:rgba(160,170,190,0.1);color:#a0aabe;border:1px solid rgba(160,170,190,0.2);}
+.pill-gold{background:var(--gold-bg);color:var(--gold);border:1px solid rgba(245,200,66,0.25);}
+.pill-platinum{background:rgba(45,212,191,0.1);color:var(--teal);border:1px solid rgba(45,212,191,0.2);}
+.pill-black{background:rgba(255,255,255,0.06);color:var(--text);border:1px solid rgba(255,255,255,0.18);}
+.pill-support{background:rgba(79,126,248,0.12);color:#7fa5fa;border:1px solid rgba(79,126,248,0.2);}
+.pill-retention{background:rgba(52,201,126,0.1);color:var(--green);border:1px solid rgba(52,201,126,0.2);}
 
-  /* Channel matrix */
-  .channel-row { display: grid; grid-template-columns: 160px 1fr 1fr 1fr; gap: 0; border-bottom: 0.5px solid var(--border); align-items: center; }
-  .channel-row:last-child { border-bottom: none; }
-  .channel-row.header { background: var(--bg-secondary); }
-  .channel-block { border: 0.5px solid var(--border); border-radius: 10px; overflow: hidden; margin: 1rem 0; }
-  .ch-cell { padding: 8px 12px; font-size: 13px; color: var(--text-muted); }
-  .ch-cell.header-cell { font-size: 11px; font-weight: 500; color: var(--text); text-transform: uppercase; letter-spacing: 0.05em; }
-  .ch-scenario { font-weight: 500; color: var(--text); font-size: 13px; }
-  .ch-seq { font-size: 12px; }
-  .ch-seq .primary { color: var(--accent); font-weight: 500; }
-  .ch-seq .sep { color: var(--text-muted); margin: 0 2px; }
+/* ── Tables ── */
+table{width:100%;border-collapse:collapse;font-size:12px;margin:0.85rem 0;}
+thead tr{background:var(--bg3);}
+th{padding:8px 12px;text-align:left;font-size:10px;font-weight:600;letter-spacing:0.06em;text-transform:uppercase;color:var(--text3);border-bottom:1px solid var(--border);}
+td{padding:8px 12px;color:var(--text2);border-bottom:1px solid var(--border);line-height:1.5;vertical-align:top;}
+tr:last-child td{border-bottom:none;}
+tr:hover td{background:rgba(255,255,255,0.02);}
 
-  /* Offer table */
-  .offer-chip { display: inline-block; font-size: 11px; padding: 2px 7px; border-radius: 20px; font-weight: 500; }
-  .offer-gold { background: var(--gold); color: var(--gold-text); }
-  .offer-plat { background: var(--plat); color: var(--plat-text); }
-  .offer-black { background: var(--black-tier); color: var(--black-text); }
+/* ── Shift & channel blocks ── */
+.block-table{border:1px solid var(--border);border-radius:var(--radius-lg);overflow:hidden;margin:0.85rem 0;}
+.bt-header{display:grid;background:var(--bg3);}
+.bt-row{display:grid;border-bottom:1px solid var(--border);}
+.bt-row:last-child{border-bottom:none;}
+.bt-cell{padding:9px 12px;font-size:12px;color:var(--text2);line-height:1.5;}
+.bt-cell.hdr{font-size:10px;font-weight:600;letter-spacing:0.06em;text-transform:uppercase;color:var(--text3);}
+.bt-cell.strong{color:var(--text);font-weight:500;}
 
-  /* Priority matrix */
-  .priority-card { border-radius: 10px; padding: 1rem; border: 0.5px solid var(--border); margin-bottom: 10px; display: grid; grid-template-columns: 80px 1fr; gap: 12px; align-items: start; }
-  .p-badge { font-size: 20px; font-weight: 500; border-radius: 8px; width: 48px; height: 48px; display: flex; align-items: center; justify-content: center; }
-  .p1 { background: #FCEBEB; color: #A32D2D; }
-  .p2 { background: #FAEEDA; color: #633806; }
-  .p3 { background: #E1F5EE; color: #0F6E56; }
-  .p-content h4 { font-size: 14px; font-weight: 500; color: var(--text); margin-bottom: 4px; }
-  .p-content p { font-size: 13px; color: var(--text-muted); margin: 0; }
+.shift-cols{grid-template-columns:130px 120px 1fr 180px;}
+.ch-cols{grid-template-columns:160px 1fr 1fr 1fr;}
 
-  /* Glossary */
-  .glossary-item { padding: 0.75rem 0; border-bottom: 0.5px solid var(--border); display: grid; grid-template-columns: 160px 1fr; gap: 16px; }
-  .glossary-item:last-child { border-bottom: none; }
-  .g-term { font-weight: 500; font-size: 13.5px; color: var(--text); }
-  .g-def { font-size: 13.5px; color: var(--text-muted); line-height: 1.6; }
+/* ── Priority cards ── */
+.priority-card{border:1px solid var(--border);border-radius:var(--radius);padding:1rem 1.1rem;margin-bottom:10px;display:grid;grid-template-columns:64px 1fr;gap:12px;align-items:start;}
+.p-badge{width:44px;height:44px;border-radius:var(--radius);display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:600;}
+.p1{background:rgba(240,82,82,0.12);color:var(--red);}
+.p2{background:rgba(245,166,35,0.12);color:var(--amber);}
+.p3{background:rgba(52,201,126,0.1);color:var(--green);}
+.p-content h4{font-size:13px;font-weight:600;color:var(--text);margin-bottom:3px;}
+.p-content p{font-size:12px;color:var(--text2);margin:0;line-height:1.6;}
 
-  /* Annex nav */
-  .annex-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 10px; margin: 1rem 0; }
-  .annex-card { border: 0.5px solid var(--border); border-radius: 10px; padding: 0.85rem 1rem; cursor: pointer; transition: all 0.15s; }
-  .annex-card:hover { background: var(--bg-secondary); border-color: var(--accent-mid); }
-  .annex-card .a-label { font-size: 11px; color: var(--text-muted); font-weight: 500; text-transform: uppercase; letter-spacing: 0.06em; }
-  .annex-card .a-title { font-size: 14px; font-weight: 500; color: var(--text); margin-top: 4px; }
-  .annex-card .a-desc { font-size: 12px; color: var(--text-muted); margin-top: 4px; }
+/* ── Offer chips ── */
+.offer-chip{display:inline-block;font-size:10px;font-weight:600;padding:2px 8px;border-radius:20px;letter-spacing:0.03em;}
+.oc-gold{background:var(--gold-bg);color:var(--gold);}
+.oc-plat{background:rgba(45,212,191,0.1);color:var(--teal);}
+.oc-black{background:rgba(255,255,255,0.06);color:var(--text);}
 
-  @media (max-width: 700px) {
-    #sidebar { display: none; }
-    #main { padding: 1.5rem 1rem; }
-    .tier-grid { grid-template-columns: 1fr 1fr; }
-    .shift-row, .channel-row { grid-template-columns: 1fr; }
-    .shift-row.header, .channel-row.header { display: none; }
-  }
+/* ── Glossary ── */
+.glossary-item{padding:0.7rem 0;border-bottom:1px solid var(--border);display:grid;grid-template-columns:160px 1fr;gap:16px;}
+.glossary-item:last-child{border-bottom:none;}
+.g-term{font-size:13px;font-weight:500;color:var(--text);}
+.g-def{font-size:13px;color:var(--text2);line-height:1.6;}
+
+/* ── Handover example ── */
+.hov-thread{background:var(--bg3);border:1px solid var(--border);border-radius:var(--radius);padding:1rem 1.1rem;margin:0.75rem 0;}
+.hov-msg{margin-bottom:0.6rem;font-size:12px;line-height:1.65;color:var(--text2);}
+.hov-msg:last-child{margin-bottom:0;}
+.hov-msg .hov-name{color:var(--accent);font-weight:500;}
+.hov-msg .hov-time{color:var(--text3);margin-right:6px;}
+.hov-msg .hov-ack{color:var(--green);}
+
+/* ── Scrollbar ── */
+::-webkit-scrollbar{width:6px;height:6px;}
+::-webkit-scrollbar-track{background:var(--bg);}
+::-webkit-scrollbar-thumb{background:var(--bg4);border-radius:3px;}
+
+@media(max-width:720px){
+  #sidebar{display:none;}
+  #main{margin-left:0;padding:1.25rem 1rem;}
+  .tier-grid{grid-template-columns:1fr 1fr;}
+  .shift-cols,.ch-cols{grid-template-columns:1fr;}
+  .bt-header{display:none;}
+}
 </style>
 </head>
 <body>
 
-<!-- Sidebar -->
 <nav id="sidebar">
   <div class="sidebar-logo">
     <div class="brand">Green Feather Online</div>
     <div class="title">HNV Team Wiki</div>
-    <div class="version">SOP v1.2 · Effective 03 Nov 2025</div>
+    <div class="version">SOP v1.2 · 03 Nov 2025</div>
   </div>
 
   <div class="nav-section">
-    <div class="nav-section-label">Overview</div>
-    <a class="nav-link active" onclick="showSection('overview')"><span class="nav-dot"></span>Introduction</a>
-    <a class="nav-link" onclick="showSection('principles')"><span class="nav-dot"></span>Core principles</a>
+    <div class="nav-label">Overview</div>
+    <a class="nav-link active" onclick="go('overview',this)"><span class="nav-dot"></span>Introduction</a>
+    <a class="nav-link" onclick="go('principles',this)"><span class="nav-dot"></span>Core principles</a>
   </div>
-
   <div class="nav-section">
-    <div class="nav-section-label">Tiers & SLAs</div>
-    <a class="nav-link" onclick="showSection('tiers')"><span class="nav-dot"></span>Tier overview</a>
-    <a class="nav-link" onclick="showSection('sla')"><span class="nav-dot"></span>SLA targets</a>
-    <a class="nav-link" onclick="showSection('upgrades')"><span class="nav-dot"></span>Upgrade process</a>
+    <div class="nav-label">Tiers & SLAs</div>
+    <a class="nav-link" onclick="go('tiers',this)"><span class="nav-dot"></span>Tier overview</a>
+    <a class="nav-link" onclick="go('sla',this)"><span class="nav-dot"></span>SLA targets</a>
+    <a class="nav-link" onclick="go('upgrades',this)"><span class="nav-dot"></span>Upgrade process</a>
   </div>
-
   <div class="nav-section">
-    <div class="nav-section-label">Roles & Schedules</div>
-    <a class="nav-link" onclick="showSection('vip-role')"><span class="nav-dot"></span>VIP account managers</a>
-    <a class="nav-link" onclick="showSection('ret-role')"><span class="nav-dot"></span>Retention agents</a>
-    <a class="nav-link" onclick="showSection('inbound')"><span class="nav-dot"></span>Inbound & overflow</a>
+    <div class="nav-label">Roles & Schedules</div>
+    <a class="nav-link" onclick="go('vip-role',this)"><span class="nav-dot"></span>VIP account managers</a>
+    <a class="nav-link" onclick="go('ret-role',this)"><span class="nav-dot"></span>Retention agents</a>
+    <a class="nav-link" onclick="go('inbound',this)"><span class="nav-dot"></span>Inbound & overflow</a>
   </div>
-
   <div class="nav-section">
-    <div class="nav-section-label">Operations</div>
-    <a class="nav-link" onclick="showSection('channels')"><span class="nav-dot"></span>Channel matrix</a>
-    <a class="nav-link" onclick="showSection('outbound')"><span class="nav-dot"></span>Outbound cadences</a>
-    <a class="nav-link" onclick="showSection('offers')"><span class="nav-dot"></span>Offer hierarchy & caps</a>
-    <a class="nav-link" onclick="showSection('escalation')"><span class="nav-dot"></span>Escalation & priority</a>
-    <a class="nav-link" onclick="showSection('documentation')"><span class="nav-dot"></span>Documentation standards</a>
-    <a class="nav-link" onclick="showSection('handover')"><span class="nav-dot"></span>Handover & ownership</a>
+    <div class="nav-label">Operations</div>
+    <a class="nav-link" onclick="go('channels',this)"><span class="nav-dot"></span>Channel matrix</a>
+    <a class="nav-link" onclick="go('outbound',this)"><span class="nav-dot"></span>Outbound cadences</a>
+    <a class="nav-link" onclick="go('offers',this)"><span class="nav-dot"></span>Offer hierarchy & caps</a>
+    <a class="nav-link" onclick="go('escalation',this)"><span class="nav-dot"></span>Escalation & priority</a>
+    <a class="nav-link" onclick="go('documentation',this)"><span class="nav-dot"></span>Documentation standards</a>
+    <a class="nav-link" onclick="go('handover',this)"><span class="nav-dot"></span>Handover & ownership</a>
   </div>
-
   <div class="nav-section">
-    <div class="nav-section-label">Reference</div>
-    <a class="nav-link" onclick="showSection('contact-hours')"><span class="nav-dot"></span>Contact hours by region</a>
-    <a class="nav-link" onclick="showSection('kpi')"><span class="nav-dot"></span>KPIs & quality</a>
-    <a class="nav-link" onclick="showSection('tools')"><span class="nav-dot"></span>Tools & systems</a>
-    <a class="nav-link" onclick="showSection('glossary')"><span class="nav-dot"></span>Glossary</a>
+    <div class="nav-label">Reference</div>
+    <a class="nav-link" onclick="go('contact-hours',this)"><span class="nav-dot"></span>Contact hours by region</a>
+    <a class="nav-link" onclick="go('kpi',this)"><span class="nav-dot"></span>KPIs & quality</a>
+    <a class="nav-link" onclick="go('tools',this)"><span class="nav-dot"></span>Tools & systems</a>
+    <a class="nav-link" onclick="go('glossary',this)"><span class="nav-dot"></span>Glossary</a>
   </div>
 </nav>
 
-<!-- Main content -->
 <main id="main">
 
   <!-- OVERVIEW -->
@@ -251,11 +225,11 @@
       <div class="breadcrumb">HNV Team Wiki</div>
       <h1>High Net Value Desk</h1>
       <p class="subtitle">Specialized service layer above standard customer support, dedicated to high-value players. Staffed by VIP Account Managers and Retention agents.</p>
-      <div class="meta">
-        <span><strong>Version:</strong> SOP 1.2</span>
-        <span><strong>Owner:</strong> Arik Weiss</span>
-        <span><strong>Effective:</strong> 03 Nov 2025</span>
-        <span><strong>Next review:</strong> 01 Jun 2026</span>
+      <div class="meta-row">
+        <span class="meta-item"><strong>Version:</strong> SOP 1.2</span>
+        <span class="meta-item"><strong>Owner:</strong> Arik Weiss</span>
+        <span class="meta-item"><strong>Effective:</strong> 03 Nov 2025</span>
+        <span class="meta-item"><strong>Next review:</strong> 01 Jun 2026</span>
       </div>
     </div>
 
@@ -264,9 +238,7 @@
     </div>
 
     <h2>What this wiki covers</h2>
-    <p>This wiki documents how the HNV Desk operates day-to-day. It complements the general Customer Support SOP for routine procedures (e.g. Responsible Gaming and AML) without replacing it. Use the sidebar to navigate between sections.</p>
-
-    <h2>Scope</h2>
+    <p>This wiki documents how the HNV Desk operates day-to-day. It complements the general Customer Support SOP for routine procedures (Responsible Gaming, AML) without replacing it.</p>
     <ul>
       <li>Tier management — service levels, upgrade criteria, downgrade rules</li>
       <li>Role responsibilities — VIP Account Managers and Retention Agents</li>
@@ -277,29 +249,29 @@
 
     <h2>Four player tiers at a glance</h2>
     <div class="tier-grid">
-      <div class="tier-card tier-silver">
-        <div class="tier-name">Tier 1</div>
-        <div class="tier-label">High-Value Silver</div>
-        <div class="tier-owner">Owner: Support + Retention outreach</div>
-        <div class="tier-desc">Emerging value players</div>
+      <div class="tier-card t-silver">
+        <div class="t-name">Tier 1</div>
+        <div class="t-label">High-Value Silver</div>
+        <div class="t-owner">Owner: Support + Retention</div>
+        <div class="t-desc">Emerging value players</div>
       </div>
-      <div class="tier-card tier-gold">
-        <div class="tier-name">Tier 2</div>
-        <div class="tier-label">Gold</div>
-        <div class="tier-owner">Owner: Retention</div>
-        <div class="tier-desc">Confirmed high-value players</div>
+      <div class="tier-card t-gold">
+        <div class="t-name">Tier 2</div>
+        <div class="t-label">Gold</div>
+        <div class="t-owner">Owner: Retention</div>
+        <div class="t-desc">Confirmed high-value players</div>
       </div>
-      <div class="tier-card tier-platinum">
-        <div class="tier-name">Tier 3</div>
-        <div class="tier-label">Platinum</div>
-        <div class="tier-owner">Owner: VIP Account Manager</div>
-        <div class="tier-desc">Established VIPs</div>
+      <div class="tier-card t-platinum">
+        <div class="t-name">Tier 3</div>
+        <div class="t-label">Platinum</div>
+        <div class="t-owner">Owner: VIP Account Manager</div>
+        <div class="t-desc">Established VIPs</div>
       </div>
-      <div class="tier-card tier-black">
-        <div class="tier-name">Tier 4</div>
-        <div class="tier-label">Black</div>
-        <div class="tier-owner">Owner: VIP Account Manager</div>
-        <div class="tier-desc">Elite VIPs — white-glove service</div>
+      <div class="tier-card t-black">
+        <div class="t-name">Tier 4</div>
+        <div class="t-label">Black</div>
+        <div class="t-owner">Owner: VIP Account Manager</div>
+        <div class="t-desc">Elite VIPs — white-glove service</div>
       </div>
     </div>
   </div>
@@ -312,20 +284,16 @@
     </div>
 
     <h2>One-team collaboration</h2>
-    <p>VIP and Retention teams work as one unit with clear ownership boundaries. Handovers are explicit and documented so the next handler can pick up within seconds.</p>
-    <p>Every high-value player is a shared responsibility of the HNV Desk, even though a single owner is accountable at any given time. For Platinum and Black, each player is assigned to a specific VIP Account Manager (their portfolio). If something urgent happens when the owner is unavailable, another team member steps in and informs the owner via a tagged handover note.</p>
+    <p>VIP and Retention teams work as one unit with clear ownership boundaries. Handovers are explicit and documented so the next handler can pick up within seconds. Every high-value player is a shared HNV responsibility — a single owner is accountable at any given time, but if something urgent happens the team covers immediately and informs the portfolio owner.</p>
 
     <h2>Compliance & responsible gaming first</h2>
-    <div class="callout warning">
-      <p>No contact during RG or Compliance holds. Follow Communication Standards Annex B at all times.</p>
-    </div>
+    <div class="callout warn"><p>No contact during RG or Compliance holds. Follow Communication Standards Annex B at all times.</p></div>
 
     <h2>Personalisation</h2>
-    <p>Agents can use templates, but always customize them to match the player and purpose. Every outbound message or call ends with a clear invitation or next step — for example, suggesting a time for the next session, offering to call at a convenient time, or presenting a bonus that requires the player's action. Avoid generic "come back soon" pleas; give the player a concrete path to follow.</p>
+    <p>Agents can use templates but always customize them. Every outbound message or call ends with a clear next step — suggesting a time for the next session, offering to call at a convenient time, or presenting a bonus that requires the player's action. Avoid generic "come back soon" messages; give the player a concrete path to follow.</p>
 
     <h2>Proactive engagement with next steps</h2>
-    <p>HNV service is proactive rather than reactive. We reach out to players before they ask, and we always conclude each player interaction with a defined next step or follow-up scheduled.</p>
-    <p>Each proactive touch should aim to:</p>
+    <p>HNV service is proactive rather than reactive. We reach out before players ask and always conclude each interaction with a defined next step. Each proactive touch should:</p>
     <ul>
       <li>Shorten time to the next session or conversation</li>
       <li>Pre-empt friction on deposits, withdrawals, or KYC</li>
@@ -333,9 +301,7 @@
       <li>Capture discovery and log it in Player Discovery Information (Annex E)</li>
       <li>End with a clear next step and time when appropriate</li>
     </ul>
-    <div class="callout success">
-      <p>We measure results with connection rate, follow-through on next steps, reactivations won, upgrades achieved, and qualitative feedback.</p>
-    </div>
+    <div class="callout success"><p>We measure results with connection rate, follow-through on next steps, reactivations won, upgrades achieved, and qualitative feedback.</p></div>
   </div>
 
   <!-- TIERS -->
@@ -346,61 +312,25 @@
     </div>
 
     <div class="tier-grid">
-      <div class="tier-card tier-silver">
-        <div class="tier-name">High-Value Silver</div>
-        <div class="tier-label">Emerging value</div>
-        <div class="tier-desc">Owner: Support (with Retention outreach)</div>
-      </div>
-      <div class="tier-card tier-gold">
-        <div class="tier-name">Gold</div>
-        <div class="tier-label">Confirmed HV</div>
-        <div class="tier-desc">Owner: Retention</div>
-      </div>
-      <div class="tier-card tier-platinum">
-        <div class="tier-name">Platinum</div>
-        <div class="tier-label">Established VIP</div>
-        <div class="tier-desc">Owner: VIP Account Manager</div>
-      </div>
-      <div class="tier-card tier-black">
-        <div class="tier-name">Black</div>
-        <div class="tier-label">Elite VIP</div>
-        <div class="tier-desc">Owner: VIP Account Manager</div>
-      </div>
+      <div class="tier-card t-silver"><div class="t-name">High-Value Silver</div><div class="t-label">Emerging value</div><div class="t-owner">Support + Retention outreach</div></div>
+      <div class="tier-card t-gold"><div class="t-name">Gold</div><div class="t-label">Confirmed HV</div><div class="t-owner">Retention</div></div>
+      <div class="tier-card t-platinum"><div class="t-name">Platinum</div><div class="t-label">Established VIP</div><div class="t-owner">VIP Account Manager</div></div>
+      <div class="tier-card t-black"><div class="t-name">Black</div><div class="t-label">Elite VIP</div><div class="t-owner">VIP Account Manager</div></div>
     </div>
 
     <h2>Upgrade criteria</h2>
     <table>
-      <thead>
-        <tr><th>Tier</th><th>Total deposits</th><th>Last 30 days</th><th>Additional requirements</th></tr>
-      </thead>
+      <thead><tr><th>Tier</th><th>Total deposits</th><th>Last 30 days</th><th>Additional requirements</th></tr></thead>
       <tbody>
-        <tr>
-          <td><span class="pill pill-sup">→ Silver</span></td>
-          <td>~€/$400</td>
-          <td>~€/$300</td>
-          <td>Clean account (no abuse/fraud/unhealthy ratios)</td>
-        </tr>
-        <tr>
-          <td><span class="pill pill-ret">→ Gold</span></td>
-          <td>~€/$2,000</td>
-          <td>~€/$700</td>
-          <td>Verified KYC & healthy ratios (if WD ratio or bonus ratio >50%, other must be <20%)</td>
-        </tr>
-        <tr>
-          <td><span class="pill pill-vip">→ Platinum</span></td>
-          <td>~€/$10,000+</td>
-          <td>≥€/$1,500</td>
-          <td>Management discretion</td>
-        </tr>
-        <tr>
-          <td><span class="pill pill-black">→ Black</span></td>
-          <td colspan="3">N/A — by VIP Lead and senior management only</td>
-        </tr>
+        <tr><td><span class="pill pill-silver">→ Silver</span></td><td>~€/$400</td><td>~€/$300</td><td>Clean account — no abuse, fraud, or unhealthy ratios</td></tr>
+        <tr><td><span class="pill pill-gold">→ Gold</span></td><td>~€/$2,000</td><td>~€/$700</td><td>Verified KYC & healthy ratios (if WD or bonus ratio >50%, other must be <20%)</td></tr>
+        <tr><td><span class="pill pill-platinum">→ Platinum</span></td><td>~€/$10,000+</td><td>≥€/$1,500</td><td>Management discretion</td></tr>
+        <tr><td><span class="pill pill-black">→ Black</span></td><td colspan="3">VIP Lead and senior management only</td></tr>
       </tbody>
     </table>
 
     <h2>Downgrades</h2>
-    <p>Demotions are used sparingly. The team conducts periodic reviews (~quarterly) for players who have been inactive or dropped play significantly. If a downgrade is deemed necessary, see the HNV Team Leads SOP. All upgrades and downgrades are documented in BB notes with date, owner, and reasoning for edge cases.</p>
+    <p>Demotions are used sparingly and handled with care. Quarterly reviews identify players who have been inactive or significantly dropped play. All upgrades and downgrades are documented in BB notes with date, owner, and reasoning for edge cases. If a downgrade is necessary, see the HNV Team Leads SOP.</p>
   </div>
 
   <!-- SLA -->
@@ -410,35 +340,35 @@
       <h1>SLA targets</h1>
     </div>
 
-    <h2>Chat (first response)</h2>
+    <h2>Chat — first response</h2>
     <table>
       <thead><tr><th>Tier</th><th>SLA 1</th><th>SLA 2</th></tr></thead>
       <tbody>
-        <tr><td><span class="pill pill-sup">High-Value Silver</span></td><td>70% ≤ 2 min</td><td>80% ≤ 5 min</td></tr>
-        <tr><td><span class="pill pill-ret">Gold</span></td><td>80% ≤ 2 min</td><td>95% ≤ 5 min</td></tr>
-        <tr><td><span class="pill pill-vip">Platinum</span></td><td>95% ≤ 2 min</td><td>—</td></tr>
+        <tr><td><span class="pill pill-silver">High-Value Silver</span></td><td>70% ≤ 2 min</td><td>80% ≤ 5 min</td></tr>
+        <tr><td><span class="pill pill-gold">Gold</span></td><td>80% ≤ 2 min</td><td>95% ≤ 5 min</td></tr>
+        <tr><td><span class="pill pill-platinum">Platinum</span></td><td>95% ≤ 2 min</td><td>—</td></tr>
         <tr><td><span class="pill pill-black">Black</span></td><td>95% ≤ 1 min</td><td>—</td></tr>
       </tbody>
     </table>
 
-    <h2>Email (first response)</h2>
+    <h2>Email — first response</h2>
     <table>
       <thead><tr><th>Tier</th><th>SLA 1</th><th>SLA 2</th></tr></thead>
       <tbody>
-        <tr><td><span class="pill pill-sup">High-Value Silver</span></td><td>70% ≤ 2 hrs</td><td>80% ≤ 6 hrs</td></tr>
-        <tr><td><span class="pill pill-ret">Gold</span></td><td>80% ≤ 2 hrs</td><td>95% ≤ 6 hrs</td></tr>
-        <tr><td><span class="pill pill-vip">Platinum</span></td><td>95% ≤ 2 hrs</td><td>—</td></tr>
+        <tr><td><span class="pill pill-silver">High-Value Silver</span></td><td>70% ≤ 2 hrs</td><td>80% ≤ 6 hrs</td></tr>
+        <tr><td><span class="pill pill-gold">Gold</span></td><td>80% ≤ 2 hrs</td><td>95% ≤ 6 hrs</td></tr>
+        <tr><td><span class="pill pill-platinum">Platinum</span></td><td>95% ≤ 2 hrs</td><td>—</td></tr>
         <tr><td><span class="pill pill-black">Black</span></td><td>≤ 15 min</td><td>—</td></tr>
       </tbody>
     </table>
 
-    <h2>WhatsApp (on-duty)</h2>
+    <h2>WhatsApp — on-duty</h2>
     <table>
       <thead><tr><th>Tier</th><th>Target</th></tr></thead>
       <tbody>
-        <tr><td><span class="pill pill-sup">High-Value Silver</span></td><td>N/A</td></tr>
-        <tr><td><span class="pill pill-ret">Gold</span></td><td>≤ 15 min</td></tr>
-        <tr><td><span class="pill pill-vip">Platinum</span></td><td>≤ 5 min</td></tr>
+        <tr><td><span class="pill pill-silver">High-Value Silver</span></td><td>N/A</td></tr>
+        <tr><td><span class="pill pill-gold">Gold</span></td><td>≤ 15 min</td></tr>
+        <tr><td><span class="pill pill-platinum">Platinum</span></td><td>≤ 5 min</td></tr>
         <tr><td><span class="pill pill-black">Black</span></td><td>95% ≤ 3 min</td></tr>
       </tbody>
     </table>
@@ -447,9 +377,9 @@
     <table>
       <thead><tr><th>Tier</th><th>Promise</th></tr></thead>
       <tbody>
-        <tr><td><span class="pill pill-sup">Silver</span></td><td>Attentive service, identifying potential VIP behavior and ensuring proper hand-offs</td></tr>
-        <tr><td><span class="pill pill-ret">Gold</span></td><td>Elevated, proactive care with personalized touches and faster handling</td></tr>
-        <tr><td><span class="pill pill-vip">Platinum</span></td><td>Highly personalized, rapid service with proactive care and tailored rewards</td></tr>
+        <tr><td><span class="pill pill-silver">Silver</span></td><td>Attentive service identifying potential VIP behaviour and ensuring proper hand-offs</td></tr>
+        <tr><td><span class="pill pill-gold">Gold</span></td><td>Elevated, proactive care with personalized touches and faster handling</td></tr>
+        <tr><td><span class="pill pill-platinum">Platinum</span></td><td>Highly personalized, rapid service with proactive care and tailored rewards</td></tr>
         <tr><td><span class="pill pill-black">Black</span></td><td>White-glove concierge treatment with top priority on all requests</td></tr>
       </tbody>
     </table>
@@ -462,20 +392,16 @@
       <h1>Upgrade process</h1>
     </div>
 
-    <h2>→ Gold (Silver to Gold)</h2>
+    <h2>Silver → Gold</h2>
     <p>Retention Agent upgrades directly once criteria are met. Retention Lead approval required for edge cases.</p>
 
-    <h2>→ Platinum (Gold to Platinum)</h2>
+    <h2>Gold → Platinum</h2>
     <p>Retention Agent recommends via Retention Lead → VIP Lead reviews and approves → Handover to VIP Account Manager.</p>
-    <div class="callout">
-      <p>On upgrade to Platinum, the Retention Agent hands over all relevant context (discovery, preferences, recent activity, open issues) so the VIP AM can seamlessly continue the relationship. The new VIP AM must make a welcome contact within the same shift and set a next step.</p>
-    </div>
+    <div class="callout"><p>On upgrade to Platinum, the Retention Agent hands over all relevant context — discovery, preferences, recent activity, open issues — so the VIP AM can seamlessly continue the relationship. The new VIP AM must make a welcome contact within the same shift and set a next step.</p></div>
 
-    <h2>→ Black (Platinum to Black)</h2>
+    <h2>Platinum → Black</h2>
     <p>VIP Account Manager prepares a case → vetted by VIP Lead with senior management.</p>
-    <div class="callout warning">
-      <p>Black upgrade approvals are delivered personally by the VIP Account Manager. All upgrades must be documented in BB notes with date, owner, and reasoning for edge cases.</p>
-    </div>
+    <div class="callout warn"><p>Black upgrade approvals are delivered personally by the VIP Account Manager. All upgrades must be documented in BB notes with date, owner, and reasoning for edge cases.</p></div>
   </div>
 
   <!-- VIP ROLE -->
@@ -492,53 +418,20 @@
       <li><strong>Proactive outbound (voice-first)</strong> — reserve daily outbound blocks. Aim for quality conversations leading to next steps. Call first for saves, detractors, and significant reactivations.</li>
       <li><strong>Account monitoring</strong> — monitor portfolio activity and milestones. Prepare Black upgrade cases and deliver approvals personally.</li>
       <li><strong>Issue advocacy</strong> — when cases exceed authority, escalate to VIP Lead. Remain the player's single point of contact.</li>
-      <li><strong>Cross-brand portfolio</strong> — one human owner per human across all sister brands when feasible.</li>
+      <li><strong>Cross-brand portfolio</strong> — one human owner per player across all sister brands when feasible.</li>
     </ul>
 
     <h2>Daily shift structure</h2>
-    <div class="shift-block">
-      <div class="shift-row header">
-        <div class="shift-cell header-cell">Time window</div>
-        <div class="shift-cell header-cell">Focus</div>
-        <div class="shift-cell header-cell">Typical actions</div>
-        <div class="shift-cell header-cell">Output</div>
+    <div class="block-table">
+      <div class="bt-header bt-row shift-cols">
+        <div class="bt-cell hdr">Time window</div><div class="bt-cell hdr">Focus</div><div class="bt-cell hdr">Typical actions</div><div class="bt-cell hdr">Output</div>
       </div>
-      <div class="shift-row">
-        <div class="shift-cell"><span class="shift-time">First 20 min</span></div>
-        <div class="shift-cell"><span class="shift-focus">Situational awareness</span></div>
-        <div class="shift-cell">Scan #hnv-handover, check Dixa follow-ups, Payments & RG alerts</div>
-        <div class="shift-cell">Personal to-do, deadlined updates, flags cleared</div>
-      </div>
-      <div class="shift-row">
-        <div class="shift-cell"><span class="shift-time">Next 15–40 min</span></div>
-        <div class="shift-cell"><span class="shift-focus">P1/P2 triage</span></div>
-        <div class="shift-cell">Call detractors, WD blockers, payment fails. Set factual update times.</div>
-        <div class="shift-cell">Player updated, next update time logged, BB refreshed</div>
-      </div>
-      <div class="shift-row">
-        <div class="shift-cell"><span class="shift-time">2-hour block</span></div>
-        <div class="shift-cell"><span class="shift-focus">VIP outbound</span></div>
-        <div class="shift-cell">Reactivations 8–21 days silent, post-withdrawal saves, relationship calls, upgrade welcomes</div>
-        <div class="shift-cell">~6 live connects, each with a next step logged</div>
-      </div>
-      <div class="shift-row">
-        <div class="shift-cell"><span class="shift-time">Rolling</span></div>
-        <div class="shift-cell"><span class="shift-focus">Inbound VIP line</span></div>
-        <div class="shift-cell">Pick up Platinum and Black per SLA. Keep ownership and cadence.</div>
-        <div class="shift-cell">First response within SLA, next step set and logged</div>
-      </div>
-      <div class="shift-row">
-        <div class="shift-cell"><span class="shift-time">Mid-shift 30 min</span></div>
-        <div class="shift-cell"><span class="shift-focus">Case prep</span></div>
-        <div class="shift-cell">Prepare upgrade cases, request lead approvals, review exceptions</div>
-        <div class="shift-cell">Approved or queued cases, notes linked in CBO</div>
-      </div>
-      <div class="shift-row">
-        <div class="shift-cell"><span class="shift-time">Final 20 min</span></div>
-        <div class="shift-cell"><span class="shift-focus">Handover</span></div>
-        <div class="shift-cell">Post handover in #hnv-handover with owner tag and exact deadlines</div>
-        <div class="shift-cell">Clean handover, no loose ends</div>
-      </div>
+      <div class="bt-row shift-cols"><div class="bt-cell strong">First 20 min</div><div class="bt-cell strong">Situational awareness</div><div class="bt-cell">Scan #hnv-handover, check Dixa follow-ups, Payments & RG alerts</div><div class="bt-cell">Personal to-do, flags cleared</div></div>
+      <div class="bt-row shift-cols"><div class="bt-cell strong">Next 15–40 min</div><div class="bt-cell strong">P1/P2 triage</div><div class="bt-cell">Call detractors, WD blockers, payment fails. Set factual update times.</div><div class="bt-cell">Player updated, next update time logged</div></div>
+      <div class="bt-row shift-cols"><div class="bt-cell strong">2-hour block</div><div class="bt-cell strong">VIP outbound</div><div class="bt-cell">Reactivations 8–21 days silent, post-WD saves, relationship calls, upgrade welcomes</div><div class="bt-cell">~6 live connects with next step logged</div></div>
+      <div class="bt-row shift-cols"><div class="bt-cell strong">Rolling</div><div class="bt-cell strong">Inbound VIP line</div><div class="bt-cell">Pick up Platinum and Black per SLA. Keep ownership and cadence.</div><div class="bt-cell">First response within SLA, next step set</div></div>
+      <div class="bt-row shift-cols"><div class="bt-cell strong">Mid-shift 30 min</div><div class="bt-cell strong">Case prep</div><div class="bt-cell">Prepare upgrade cases, request lead approvals, review exceptions</div><div class="bt-cell">Approved or queued cases, CBO linked</div></div>
+      <div class="bt-row shift-cols"><div class="bt-cell strong">Final 20 min</div><div class="bt-cell strong">Handover</div><div class="bt-cell">Post in #hnv-handover with owner tag and exact deadlines</div><div class="bt-cell">Clean handover, no loose ends</div></div>
     </div>
   </div>
 
@@ -547,61 +440,28 @@
     <div class="page-header">
       <div class="breadcrumb">HNV Team Wiki → Roles & Schedules</div>
       <h1>Retention agents</h1>
-      <p class="subtitle">Own High-Value Silver and Gold. Focus on structured outbound cadences, inbound Gold support, and real-time monitoring.</p>
+      <p class="subtitle">Own High-Value Silver and Gold. Focus on structured cadences, inbound Gold support, and real-time monitoring.</p>
     </div>
 
     <h2>Core responsibilities</h2>
     <ul>
-      <li><strong>Structured proactive cadences</strong> — run upgrade nurturing and reactivation cadences with personalized touches. Prioritize the 8–21 day inactivity window.</li>
+      <li><strong>Structured proactive cadences</strong> — run upgrade nurturing and reactivation cadences. Prioritize the 8–21 day inactivity window.</li>
       <li><strong>Inbound Gold support</strong> — handle Gold inbound faster than general support. Convert service moments into relationship moments.</li>
       <li><strong>Save and reactivation</strong> — execute saves and win-back attempts with clear next steps.</li>
       <li><strong>Real-time monitoring</strong> — watch dashboards for failed deposits, spikes, big wins, or RG signals. Pause outreach if RG/Compliance flags appear.</li>
     </ul>
 
     <h2>Daily shift structure</h2>
-    <div class="shift-block">
-      <div class="shift-row header">
-        <div class="shift-cell header-cell">Time window</div>
-        <div class="shift-cell header-cell">Focus</div>
-        <div class="shift-cell header-cell">Typical actions</div>
-        <div class="shift-cell header-cell">Output</div>
+    <div class="block-table">
+      <div class="bt-header bt-row shift-cols">
+        <div class="bt-cell hdr">Time window</div><div class="bt-cell hdr">Focus</div><div class="bt-cell hdr">Typical actions</div><div class="bt-cell hdr">Output</div>
       </div>
-      <div class="shift-row">
-        <div class="shift-cell"><span class="shift-time">First 20 min</span></div>
-        <div class="shift-cell"><span class="shift-focus">Situational awareness</span></div>
-        <div class="shift-cell">Scan #hnv-handover, check Dixa follow-ups, Player Activities, Deposit Monitor</div>
-        <div class="shift-cell">Personal to-do, deadlined updates, flags cleared</div>
-      </div>
-      <div class="shift-row">
-        <div class="shift-cell"><span class="shift-time">Next 20 min</span></div>
-        <div class="shift-cell"><span class="shift-focus">Queue & tracker hygiene</span></div>
-        <div class="shift-cell">Import CRM lists, deduplicate tracker, scan BB deadlines</div>
-        <div class="shift-cell">Clean daily list by cadence and priority</div>
-      </div>
-      <div class="shift-row">
-        <div class="shift-cell"><span class="shift-time">Rolling</span></div>
-        <div class="shift-cell"><span class="shift-focus">Gold inbound</span></div>
-        <div class="shift-cell">Pick up Gold contacts fast, convert service to relationship, handle overflow, log discovery</div>
-        <div class="shift-cell">First response within SLA, next step set</div>
-      </div>
-      <div class="shift-row">
-        <div class="shift-cell"><span class="shift-time">90-min block</span></div>
-        <div class="shift-cell"><span class="shift-focus">Reactivation cadences</span></div>
-        <div class="shift-cell">Day 3, 7, 10–11, 14 touches with next-step scripting</div>
-        <div class="shift-cell">Completions to plan, replies scheduled</div>
-      </div>
-      <div class="shift-row">
-        <div class="shift-cell"><span class="shift-time">Every 60 min</span></div>
-        <div class="shift-cell"><span class="shift-focus">Real-time monitoring</span></div>
-        <div class="shift-cell">Check Deposit Monitor, flag likely upgrades, escalate issues</div>
-        <div class="shift-cell">Players added to tracker, issues escalated</div>
-      </div>
-      <div class="shift-row">
-        <div class="shift-cell"><span class="shift-time">Final 20 min</span></div>
-        <div class="shift-cell"><span class="shift-focus">Handover</span></div>
-        <div class="shift-cell">Post handover in #hnv-handover with owner tag and time windows</div>
-        <div class="shift-cell">Clean handover, no loose ends</div>
-      </div>
+      <div class="bt-row shift-cols"><div class="bt-cell strong">First 20 min</div><div class="bt-cell strong">Situational awareness</div><div class="bt-cell">Scan #hnv-handover, Dixa follow-ups, Player Activities, Deposit Monitor</div><div class="bt-cell">Personal to-do, flags cleared</div></div>
+      <div class="bt-row shift-cols"><div class="bt-cell strong">Next 20 min</div><div class="bt-cell strong">Queue & tracker hygiene</div><div class="bt-cell">Import CRM lists, deduplicate tracker, scan BB deadlines</div><div class="bt-cell">Clean daily list by cadence</div></div>
+      <div class="bt-row shift-cols"><div class="bt-cell strong">Rolling</div><div class="bt-cell strong">Gold inbound</div><div class="bt-cell">Pick up Gold contacts fast, convert service to relationship, log discovery</div><div class="bt-cell">First response within SLA</div></div>
+      <div class="bt-row shift-cols"><div class="bt-cell strong">90-min block</div><div class="bt-cell strong">Reactivation cadences</div><div class="bt-cell">Day 3, 7, 10–11, 14 touches with next-step scripting</div><div class="bt-cell">Completions to plan</div></div>
+      <div class="bt-row shift-cols"><div class="bt-cell strong">Every 60 min</div><div class="bt-cell strong">Real-time monitoring</div><div class="bt-cell">Check Deposit Monitor, flag likely upgrades, escalate issues</div><div class="bt-cell">Players added to tracker</div></div>
+      <div class="bt-row shift-cols"><div class="bt-cell strong">Final 20 min</div><div class="bt-cell strong">Handover</div><div class="bt-cell">Post in #hnv-handover with owner tag and time windows</div><div class="bt-cell">Clean handover, no loose ends</div></div>
     </div>
   </div>
 
@@ -619,33 +479,26 @@
     </ul>
 
     <h2>Email routing (Dixa)</h2>
-    <p>Use the player's cross-brand max VIP level for routing. Do not auto-assign inbound emails to the named VIP Account Manager. Urgent matters (compliance, tech blockers, withdrawal delays, detractors) are handled immediately by whoever is on shift.</p>
+    <p>Use the player's cross-brand max VIP level. Do not auto-assign to the named VIP AM. Urgent matters are handled immediately by whoever is on shift — compliance blocks, tech blockers, withdrawal delays, detractors.</p>
 
     <h2>Overflow sequencing</h2>
     <table>
       <thead><tr><th>Player tier</th><th>Primary handler</th><th>First overflow</th><th>Second overflow</th></tr></thead>
       <tbody>
-        <tr>
-          <td><span class="pill pill-black">Black</span> <span class="pill pill-vip">Platinum</span></td>
-          <td>VIP Account Manager</td><td>Retention Agent</td><td>Support Agent</td>
-        </tr>
-        <tr>
-          <td><span class="pill pill-ret">Gold</span> Pre-VIP</td>
-          <td>Retention Agent</td><td>Support Agent</td><td>N/A</td>
-        </tr>
+        <tr><td><span class="pill pill-black">Black</span> <span class="pill pill-platinum">Platinum</span></td><td>VIP Account Manager</td><td>Retention Agent</td><td>Support Agent</td></tr>
+        <tr><td><span class="pill pill-gold">Gold</span> Pre-VIP</td><td>Retention Agent</td><td>Support Agent</td><td>N/A</td></tr>
       </tbody>
     </table>
 
     <h2>Ad-hoc urgent handover</h2>
-    <p>Urgent issues are a shared HNV responsibility. If the primary team has no capacity, the other team picks up immediately and keeps the player updated until handover back to the portfolio owner is confirmed.</p>
-    <p><strong>What counts as urgent:</strong></p>
+    <p>If the primary team has no capacity, the other team picks up immediately. What counts as urgent:</p>
     <ul>
-      <li>Compliance or RG states that block contact or play (KYC lock, AML review)</li>
-      <li>Tech issues that block login or play</li>
+      <li>Compliance or RG states blocking contact or play (KYC lock, AML review)</li>
+      <li>Tech issues blocking login or play</li>
       <li>Withdrawal delays or failures raised by the player</li>
       <li>Detractors and major complaints requiring voice first</li>
     </ul>
-    <p><strong>How to act:</strong> Claim the case in Dixa → log CBO contact note → add Billboard note "Urgent: [type]" with named owner and expiry → post in #hnv-handover → tag portfolio owner. Clear the BB note after resolution.</p>
+    <p><strong>How to act:</strong> Claim in Dixa → log CBO contact note → add BB note "Urgent: [type]" with named owner and expiry → post in #hnv-handover → tag portfolio owner. Clear the BB note after resolution.</p>
   </div>
 
   <!-- CHANNELS -->
@@ -653,62 +506,23 @@
     <div class="page-header">
       <div class="breadcrumb">HNV Team Wiki → Operations</div>
       <h1>Channel matrix</h1>
-      <p class="subtitle">Use in order: Primary → Backup → Fallback. Player's recorded preference in CBO overrides the matrix.</p>
+      <p class="subtitle">Use in order: Primary → Backup → Fallback. Player's recorded CBO preference overrides the matrix.</p>
     </div>
 
-    <div class="callout warning">
-      <p>WhatsApp applies only when two-way contact has been established. If no prior WhatsApp exchange, skip it in the sequence (e.g. WhatsApp → Call → Email becomes Call → Email → Call).</p>
-    </div>
+    <div class="callout warn"><p>WhatsApp applies only when two-way contact has been established. No prior exchange → skip WhatsApp in the sequence (e.g. WA → Call → Email becomes Call → Email → Call).</p></div>
 
-    <div class="channel-block">
-      <div class="channel-row header">
-        <div class="ch-cell header-cell">Scenario</div>
-        <div class="ch-cell header-cell">Retention</div>
-        <div class="ch-cell header-cell">Platinum (VIP)</div>
-        <div class="ch-cell header-cell">Black (VIP)</div>
+    <div class="block-table">
+      <div class="bt-header bt-row ch-cols">
+        <div class="bt-cell hdr">Scenario</div><div class="bt-cell hdr">Retention</div><div class="bt-cell hdr">Platinum (VIP)</div><div class="bt-cell hdr">Black (VIP)</div>
       </div>
-      <div class="channel-row">
-        <div class="ch-cell"><span class="ch-scenario">Reactivation</span></div>
-        <div class="ch-cell ch-seq"><span class="primary">Email</span><span class="sep">→</span>Call<span class="sep">→</span>WhatsApp</div>
-        <div class="ch-cell ch-seq"><span class="primary">Call</span><span class="sep">→</span>WhatsApp<span class="sep">→</span>Email</div>
-        <div class="ch-cell ch-seq"><span class="primary">Call</span><span class="sep">→</span>WhatsApp<span class="sep">→</span>Email</div>
-      </div>
-      <div class="channel-row">
-        <div class="ch-cell"><span class="ch-scenario">Post-withdrawal save</span></div>
-        <div class="ch-cell ch-seq"><span class="primary">WhatsApp</span><span class="sep">→</span>Call<span class="sep">→</span>Email</div>
-        <div class="ch-cell ch-seq"><span class="primary">Call</span><span class="sep">→</span>WhatsApp<span class="sep">→</span>Email</div>
-        <div class="ch-cell ch-seq"><span class="primary">Call</span><span class="sep">→</span>WhatsApp<span class="sep">→</span>Email</div>
-      </div>
-      <div class="channel-row">
-        <div class="ch-cell"><span class="ch-scenario">Withdrawal update/delay</span></div>
-        <div class="ch-cell ch-seq"><span class="primary">WhatsApp</span><span class="sep">→</span>Call<span class="sep">→</span>Email</div>
-        <div class="ch-cell ch-seq"><span class="primary">WhatsApp</span><span class="sep">→</span>Call<span class="sep">→</span>Email</div>
-        <div class="ch-cell ch-seq"><span class="primary">WhatsApp</span><span class="sep">→</span>Call<span class="sep">→</span>Email</div>
-      </div>
-      <div class="channel-row">
-        <div class="ch-cell"><span class="ch-scenario">Failed deposit follow-up</span></div>
-        <div class="ch-cell ch-seq"><span class="primary">WhatsApp</span><span class="sep">→</span>Call<span class="sep">→</span>Email</div>
-        <div class="ch-cell ch-seq"><span class="primary">WhatsApp</span><span class="sep">→</span>Call<span class="sep">→</span>Email</div>
-        <div class="ch-cell ch-seq"><span class="primary">WhatsApp</span><span class="sep">→</span>Call<span class="sep">→</span>Email</div>
-      </div>
-      <div class="channel-row">
-        <div class="ch-cell"><span class="ch-scenario">Deposit spike check-in</span></div>
-        <div class="ch-cell ch-seq"><span class="primary">WhatsApp</span><span class="sep">→</span>Email<span class="sep">→</span>Call</div>
-        <div class="ch-cell ch-seq"><span class="primary">Call</span><span class="sep">→</span>WhatsApp<span class="sep">→</span>Email</div>
-        <div class="ch-cell ch-seq"><span class="primary">Call</span><span class="sep">→</span>WhatsApp<span class="sep">→</span>Email</div>
-      </div>
-      <div class="channel-row">
-        <div class="ch-cell"><span class="ch-scenario">Detractor recovery</span></div>
-        <div class="ch-cell ch-seq"><span class="primary">Call</span><span class="sep">→</span>WhatsApp<span class="sep">→</span>Email</div>
-        <div class="ch-cell ch-seq"><span class="primary">Call</span><span class="sep">→</span>WhatsApp<span class="sep">→</span>Email</div>
-        <div class="ch-cell ch-seq"><span class="primary">Call</span><span class="sep">→</span>WhatsApp<span class="sep">→</span>Email</div>
-      </div>
-      <div class="channel-row">
-        <div class="ch-cell"><span class="ch-scenario">Upgrade welcome</span></div>
-        <div class="ch-cell ch-seq">To Gold: <span class="primary">WA</span><span class="sep">→</span>Call</div>
-        <div class="ch-cell ch-seq">To Platinum: <span class="primary">Call</span><span class="sep">→</span>WA</div>
-        <div class="ch-cell ch-seq">To Black: <span class="primary">Call</span><span class="sep">→</span>WA</div>
-      </div>
+      <div class="bt-row ch-cols"><div class="bt-cell strong">Reactivation</div><div class="bt-cell">Email → Call → WhatsApp</div><div class="bt-cell">Call → WhatsApp → Email</div><div class="bt-cell">Call → WhatsApp → Email</div></div>
+      <div class="bt-row ch-cols"><div class="bt-cell strong">Post-withdrawal save</div><div class="bt-cell">WhatsApp → Call → Email</div><div class="bt-cell">Call → WhatsApp → Email</div><div class="bt-cell">Call → WhatsApp → Email</div></div>
+      <div class="bt-row ch-cols"><div class="bt-cell strong">Withdrawal update/delay</div><div class="bt-cell">WhatsApp → Call → Email</div><div class="bt-cell">WhatsApp → Call → Email</div><div class="bt-cell">WhatsApp → Call → Email</div></div>
+      <div class="bt-row ch-cols"><div class="bt-cell strong">Failed deposit follow-up</div><div class="bt-cell">WhatsApp → Call → Email</div><div class="bt-cell">WhatsApp → Call → Email</div><div class="bt-cell">WhatsApp → Call → Email</div></div>
+      <div class="bt-row ch-cols"><div class="bt-cell strong">Deposit spike check-in</div><div class="bt-cell">WhatsApp → Email → Call</div><div class="bt-cell">Call → WhatsApp → Email</div><div class="bt-cell">Call → WhatsApp → Email</div></div>
+      <div class="bt-row ch-cols"><div class="bt-cell strong">Detractor recovery</div><div class="bt-cell">Call → WhatsApp → Email</div><div class="bt-cell">Call → WhatsApp → Email</div><div class="bt-cell">Call → WhatsApp → Email</div></div>
+      <div class="bt-row ch-cols"><div class="bt-cell strong">Upgrade welcome</div><div class="bt-cell">To Gold: WA → Call</div><div class="bt-cell">To Platinum: Call → WA</div><div class="bt-cell">To Black: Call → WA</div></div>
+      <div class="bt-row ch-cols"><div class="bt-cell strong">Relationship maintenance</div><div class="bt-cell">WhatsApp → Email → Call</div><div class="bt-cell">Call → WhatsApp → Email</div><div class="bt-cell">Call → WhatsApp → Email</div></div>
     </div>
   </div>
 
@@ -723,7 +537,7 @@
     <ul>
       <li><strong>Time allocation:</strong> ~2 uninterrupted hours per shift</li>
       <li><strong>Target:</strong> ~6 successful voice connections per shift</li>
-      <li><strong>Call first for:</strong> post-withdrawal saves, VIP reactivations (8–21 days), detractor recovery, relationship calls</li>
+      <li><strong>Call first for:</strong> post-withdrawal saves, VIP reactivations (8–21 days silent), detractor recovery, relationship calls</li>
     </ul>
 
     <h2>Retention reactivation cadence</h2>
@@ -733,14 +547,14 @@
         <tr><td>Day 3</td><td>Light check-in</td><td>"Hey [Name], just checking everything's smooth. Anything I can help with?"</td></tr>
         <tr><td>Day 7</td><td>Add context, reminder, or offer</td><td>Personalized note referencing last play + 30 FS offer</td></tr>
         <tr><td>Day 10–11</td><td>Reconnect, confirm offer visibility</td><td>"Did you see the free spins I sent? They're still active today."</td></tr>
-        <tr><td>Day 14</td><td>Direct outreach with incentive</td><td>Personal invite to new event or game, small token offer</td></tr>
+        <tr><td>Day 14</td><td>Direct outreach with incentive</td><td>Personal invite to new event or game with small token offer</td></tr>
       </tbody>
     </table>
 
     <h2>Light loop (after brief re-engagement)</h2>
     <p>When a player briefly returns then goes silent again, use the light loop instead of restarting from Day 3.</p>
     <table>
-      <thead><tr><th>Day (from last play)</th><th>Action</th></tr></thead>
+      <thead><tr><th>Day from last play</th><th>Action</th></tr></thead>
       <tbody>
         <tr><td>Day 3</td><td>Acknowledge recent play, mention related new content</td></tr>
         <tr><td>Day 7–10</td><td>Small friendly nudge or gift</td></tr>
@@ -750,9 +564,9 @@
 
     <h2>Inactivity window targeting</h2>
     <ul>
-      <li><strong>8–21 days:</strong> Sweet spot — highest conversion impact</li>
-      <li><strong>22–35 days:</strong> Prioritize high-value players or those who left on addressable notes</li>
-      <li><strong>35+ days:</strong> Personal outreach only for very high-value players; others go to marketing win-back campaigns</li>
+      <li><strong>8–21 days</strong> — sweet spot, highest conversion impact</li>
+      <li><strong>22–35 days</strong> — prioritize high-value players or those who left on an addressable note</li>
+      <li><strong>35+ days</strong> — personal outreach only for very high-value players; others go to marketing win-back campaigns</li>
     </ul>
   </div>
 
@@ -763,48 +577,22 @@
       <h1>Offer hierarchy & caps</h1>
     </div>
 
-    <div class="callout">
-      <p><strong>Hierarchy:</strong> Recognition (no conditions) → Free spins on favourites → Cash gift (last resort, requires next step and lead approval).</p>
-    </div>
+    <div class="callout"><p><strong>Hierarchy:</strong> Recognition (no conditions) → Free spins on favourites → Cash gift (last resort, requires next step and lead approval).</p></div>
 
     <h2>Tier caps</h2>
     <table>
       <thead><tr><th>Tier</th><th>Recognition</th><th>Goodwill (with plan)</th><th>Per-session cap</th><th>Per-month cap</th><th>Exception approver</th></tr></thead>
       <tbody>
-        <tr>
-          <td><span class="offer-chip offer-gold">Gold</span></td>
-          <td>10–25 FS or €5–€10 CG</td>
-          <td>Up to 40 FS or €15 CG</td>
-          <td>€20</td>
-          <td>€60</td>
-          <td>Retention Lead</td>
-        </tr>
-        <tr>
-          <td><span class="offer-chip offer-plat">Platinum</span></td>
-          <td>20–60 FS or €10–€25 CG</td>
-          <td>Up to 100 FS or €50 CG</td>
-          <td>€100</td>
-          <td>€300</td>
-          <td>VIP Lead</td>
-        </tr>
-        <tr>
-          <td><span class="offer-chip offer-black">Black</span></td>
-          <td>50–100 FS or €25–€50 CG</td>
-          <td>Up to 150 FS or €100 CG</td>
-          <td>€250</td>
-          <td>€750</td>
-          <td>VIP Lead / Senior mgmt above €500</td>
-        </tr>
+        <tr><td><span class="offer-chip oc-gold">Gold</span></td><td>10–25 FS or €5–€10 CG</td><td>Up to 40 FS or €15 CG</td><td>€20</td><td>€60</td><td>Retention Lead</td></tr>
+        <tr><td><span class="offer-chip oc-plat">Platinum</span></td><td>20–60 FS or €10–€25 CG</td><td>Up to 100 FS or €50 CG</td><td>€100</td><td>€300</td><td>VIP Lead</td></tr>
+        <tr><td><span class="offer-chip oc-black">Black</span></td><td>50–100 FS or €25–€50 CG</td><td>Up to 150 FS or €100 CG</td><td>€250</td><td>€750</td><td>VIP Lead / Senior mgmt above €500</td></tr>
       </tbody>
     </table>
 
     <h2>Recognition vs goodwill</h2>
-    <p><strong>Recognition</strong> — given solely to celebrate loyalty, a milestone, or positive event (birthday, upgrade, big win). Can be no-strings if tagged "Recognition Gift" and within policy. No next step required.</p>
+    <p><strong>Recognition</strong> — given solely to celebrate loyalty, a milestone, or positive event (birthday, upgrade, big win). Can be no-strings if tagged "Recognition Gift" within policy. No next step required.</p>
     <p><strong>Goodwill</strong> — any value transfer for retention or recovery purposes. Every goodwill item must be part of a plan with a logged next step and follow-up time. Lead approval needed for large or exceptional cases.</p>
-
-    <div class="callout warning">
-      <p>Cash is a last resort. Every goodwill grant (not recognition) must have a documented next step. QA checks for ≥95% compliance.</p>
-    </div>
+    <div class="callout warn"><p>Cash is a last resort. Every goodwill grant (not recognition) must have a documented next step. QA audits for ≥95% compliance.</p></div>
   </div>
 
   <!-- ESCALATION -->
@@ -816,35 +604,26 @@
 
     <div class="priority-card">
       <div><div class="p-badge p1">P1</div></div>
-      <div class="p-content">
-        <h4>Urgent blocker</h4>
-        <p>Payment block, outage on key provider, WD SLA breach, VIP detractor pending contact. First contact: immediate by Call → WhatsApp. Update cadence: every 60 min until stable, then by promise time.</p>
-      </div>
+      <div class="p-content"><h4>Urgent blocker</h4><p>Payment block, outage on key provider, WD SLA breach, VIP detractor pending contact. First contact: immediate by Call → WhatsApp. Updates: every 60 min until stable, then by promise time.</p></div>
     </div>
     <div class="priority-card">
       <div><div class="p-badge p2">P2</div></div>
-      <div class="p-content">
-        <h4>High-priority friction</h4>
-        <p>Repeated failed deposits, WD delay beyond normal, KYC stall on VIP. First contact: ≤30 min during on-duty hours. Update cadence: every 2 hrs until ETA given, then by promise time.</p>
-      </div>
+      <div class="p-content"><h4>High-priority friction</h4><p>Repeated failed deposits, WD delay beyond normal, KYC stall on VIP. First contact: ≤30 min during on-duty hours. Updates: every 2 hrs until ETA given, then by promise time.</p></div>
     </div>
     <div class="priority-card">
       <div><div class="p-badge p3">P3</div></div>
-      <div class="p-content">
-        <h4>Routine follow-ups</h4>
-        <p>Non-urgent asks and standard follow-ups. First contact: inside SLA per VIP tier. Update cadence: by next promised time in note. Normal workflow.</p>
-      </div>
+      <div class="p-content"><h4>Routine follow-ups</h4><p>Non-urgent asks and standard follow-ups. First contact: inside SLA per VIP tier. Updates: by next promised time in note. Normal workflow.</p></div>
     </div>
 
     <h2>How to log an escalation</h2>
     <p>Open the HNV Escalation sheet immediately when you escalate to Payments, Compliance, Tech, or a Lead. Required fields:</p>
     <ul>
-      <li><strong>Opened at</strong> — exact time of first escalation</li>
+      <li><strong>Opened at</strong> — exact time of first escalation (starts internal clock)</li>
       <li><strong>Priority</strong> — P1, P2, or P3</li>
       <li><strong>Category and issue summary</strong> — one factual line, no predictions</li>
       <li><strong>Owner</strong> — transfers only on a tagged, acknowledged handover</li>
-      <li><strong>CBO link and Slack/Zendesk thread</strong></li>
-      <li><strong>Next player update promised at</strong> — concrete time told to the player</li>
+      <li><strong>CBO link and Slack/Zendesk thread link</strong></li>
+      <li><strong>Next player update promised at</strong> — concrete time given to the player</li>
       <li><strong>Lead approval and resolved at</strong> — record when lead signs off and issue closes</li>
     </ul>
 
@@ -852,17 +631,15 @@
     <table>
       <thead><tr><th>Step</th><th>Action</th><th>Owner</th></tr></thead>
       <tbody>
-        <tr><td>1. Detect</td><td>Identify negative CSAT, confirm it relates to HNV interaction</td><td>Shift Manager / TL</td></tr>
+        <tr><td>1. Detect</td><td>Identify negative CSAT, confirm it relates to an HNV interaction</td><td>Shift Manager / TL</td></tr>
         <tr><td>2. Evaluate</td><td>Review Dixa/CBO history. Platinum/Black: same shift. Gold: within 24h.</td><td>Team Lead</td></tr>
         <tr><td>3. Assign</td><td>Allocate ownership, define next update time and escalation path</td><td>Team Lead</td></tr>
         <tr><td>4. Contact</td><td>TL makes first contact and identifies as Lead. Voice preferred.</td><td>TL / On-duty Agent</td></tr>
-        <tr><td>5. Document</td><td>CBO note + Billboard "Detractor CSAT [date]" + #hnv-handover post</td><td>Handling Agent</td></tr>
+        <tr><td>5. Document</td><td>CBO note + BB "Detractor CSAT [date]" + #hnv-handover post</td><td>Handling Agent</td></tr>
         <tr><td>6. Close</td><td>Confirm satisfaction before closure. Remove BB note.</td><td>Team Lead</td></tr>
       </tbody>
     </table>
-    <div class="callout warning">
-      <p><strong>No NFAs by default.</strong> NFA is only permitted when: the original issue is resolved, the player was informed, and the player expressed satisfaction. If any of these is missing, continue recovery.</p>
-    </div>
+    <div class="callout warn"><p><strong>No NFAs by default.</strong> NFA is only permitted when: the issue is resolved, the player was informed, and the player expressed satisfaction. If any is missing, continue recovery.</p></div>
   </div>
 
   <!-- DOCUMENTATION -->
@@ -877,30 +654,26 @@
     <table>
       <thead><tr><th>Type</th><th>When to use</th><th>Lifespan</th></tr></thead>
       <tbody>
-        <tr><td><strong>CBO contact note</strong></td><td>Every significant player contact or attempt: inbound, outbound, save, upgrade welcome, reactivation, service update</td><td>Permanent</td></tr>
+        <tr><td><strong>CBO contact note</strong></td><td>Every significant player contact or attempt — inbound, outbound, save, upgrade welcome, reactivation, service update</td><td>Permanent</td></tr>
         <tr><td><strong>Billboard (BB) note</strong></td><td>Time-critical or high-salience items any agent must see at a glance. Must have an owner and expiry.</td><td>Clear when resolved</td></tr>
         <tr><td><strong>Handover record</strong></td><td>When ownership moves — post in #hnv-handover with tagged on-duty owner</td><td>Operational continuity</td></tr>
-        <tr><td><strong>Tier change record</strong></td><td>On upgrade or downgrade — date, owner, rationale. BB note if player-facing sensitivity.</td><td>Permanent</td></tr>
+        <tr><td><strong>Tier change record</strong></td><td>On upgrade or downgrade — date, owner, rationale</td><td>Permanent</td></tr>
       </tbody>
     </table>
 
     <h2>CBO note example</h2>
-    <div class="callout">
-      <p><code>2025-10-12 11:30 – WhatsApp – React-d7. Referenced last play (Wolf Power on 10/3). Offered 30 FS if player joins session this Sat. Player prefers Sunday, booked check-in Sun 18:30. Next step: 15/10 18:30 WhatsApp.</code></p>
-    </div>
+    <div class="callout"><p><code>2025-10-12 11:30 – WhatsApp – React-d7. Referenced last play (Wolf Power on 10/3). Offered 30 FS for Sat session. Player prefers Sunday, booked check-in Sun 18:30. Next step: 15/10 18:30 WhatsApp.</code></p></div>
 
     <h2>BB note example</h2>
-    <div class="callout warning">
-      <p><code>Detractor 1/5 CSAT on 10/10 – VIP Lead to call by 10/11 EOD. Owner: KB. Remove after resolution.</code></p>
-    </div>
+    <div class="callout warn"><p><code>Detractor 1/5 CSAT on 10/10 – VIP Lead to call by 10/11 EOD. Owner: KB. Remove after resolution.</code></p></div>
 
     <h2>Required fields — CBO contact note</h2>
     <ul>
-      <li><strong>Channel</strong> — Call, WhatsApp, Email, Chat</li>
+      <li><strong>Channel</strong> — Call, WhatsApp, Email, or Chat</li>
       <li><strong>Reason / context</strong> — use approved reason code</li>
       <li><strong>Key details</strong> — what was said or done</li>
       <li><strong>Amounts</strong> — deposits, withdrawals, bonuses, goodwill values</li>
-      <li><strong>Promises / deadlines</strong> — any commitments made</li>
+      <li><strong>Promises / deadlines</strong> — any commitments made to the player</li>
       <li><strong>Player discovery information</strong> — hobbies, preferences, communication style</li>
       <li><strong>Next step</strong> — concrete follow-up with timestamp</li>
     </ul>
@@ -914,9 +687,7 @@
     </div>
 
     <h2>Handover template</h2>
-    <div class="callout">
-      <p><code>[PlayerID/link] – [Issue] – [Promise/deadline] – [Tagged new owner] – [Next step: exact time window]</code></p>
-    </div>
+    <div class="callout"><p><code>[PlayerID/link] – [Issue] – [Promise/deadline] – [Tagged new owner] – [Next step: exact time window]</code></p></div>
 
     <h2>Ownership rules</h2>
     <ul>
@@ -926,22 +697,20 @@
     </ul>
 
     <h2>Slack handover example</h2>
-    <div class="callout">
-      <p><strong>05:55 @A (outgoing):</strong> "Player 54321 asked about WD status, escalated in #withdrawal-questions, no response from Payments yet. Promised follow-up at 8:00. @B please update player at 8:00."<br><br>
-      <strong>06:01 @B (incoming):</strong> 👍<br><br>
-      <strong>07:56 @B:</strong> "Payments confirmed withdrawal will be paid in 1h. Informed player."<br><br>
-      <strong>08:22 @B:</strong> "Payment confirmed. Updated player via WhatsApp."</p>
+    <div class="hov-thread">
+      <div class="hov-msg"><span class="hov-time">05:55</span><span class="hov-name">@A (outgoing):</span> "Player 54321 asked about WD status, escalated in #withdrawal-questions, no response from Payments yet. Promised follow-up at 8:00. @B please update player at 8:00."</div>
+      <div class="hov-msg"><span class="hov-time">06:01</span><span class="hov-name">@B (incoming):</span> <span class="hov-ack">👍 acknowledged</span></div>
+      <div class="hov-msg"><span class="hov-time">07:56</span><span class="hov-name">@B:</span> "Payments confirmed withdrawal paid in 1h. Informed player."</div>
+      <div class="hov-msg"><span class="hov-time">08:22</span><span class="hov-name">@B:</span> "Payment confirmed. Updated player via WhatsApp."</div>
     </div>
 
-    <h2>Channel channels to know</h2>
+    <h2>Key Slack channels</h2>
     <ul>
       <li><strong>#hnv-handover</strong> — shift handovers and status updates</li>
-      <li><strong>#vip-alerts</strong> — big wins, urgent issues</li>
+      <li><strong>#vip-alerts</strong> — big wins and urgent issues</li>
       <li><strong>#withdrawal-questions</strong> — coordination with Payments</li>
     </ul>
-    <div class="callout warning">
-      <p>Never share personal player data in Slack. Use player IDs or account links only.</p>
-    </div>
+    <div class="callout warn"><p>Never share personal player data in Slack. Use player IDs or account links only.</p></div>
   </div>
 
   <!-- CONTACT HOURS -->
@@ -955,24 +724,22 @@
     <table>
       <thead><tr><th>Region</th><th>Weekdays</th><th>Weekends</th><th>Time zone</th><th>vs Cyprus</th></tr></thead>
       <tbody>
-        <tr><td>IE (Ireland)</td><td>09:00–20:00</td><td>Sat 10–18, Sun 11–17</td><td>GMT/BST</td><td>2 hrs behind</td></tr>
-        <tr><td>FI (Finland)</td><td>09:00–20:00</td><td>Sat 10–18, Sun 11–17</td><td>EET/EEST</td><td>Same time zone</td></tr>
-        <tr><td>NZ (New Zealand)</td><td>09:00–19:00</td><td>10:00–18:00</td><td>NZST/NZDT</td><td>9–10 hrs ahead</td></tr>
-        <tr><td>AU (Australia)</td><td>09:00–19:00</td><td>10:00–17:00</td><td>See city table</td><td>6–8 hrs ahead</td></tr>
-        <tr><td>CA (Canada)</td><td>09:00–20:00</td><td>10:00–18:00</td><td>Multiple zones</td><td>6–9 hrs behind</td></tr>
-        <tr><td>MX (Mexico)</td><td>09:00–20:00</td><td>10:00–18:00</td><td>CST/MST/PST</td><td>7–9 hrs behind</td></tr>
+        <tr><td>IE — Ireland</td><td>09:00–20:00</td><td>Sat 10–18, Sun 11–17</td><td>GMT / BST</td><td>2 hrs behind</td></tr>
+        <tr><td>FI — Finland</td><td>09:00–20:00</td><td>Sat 10–18, Sun 11–17</td><td>EET / EEST</td><td>Same time zone</td></tr>
+        <tr><td>NZ — New Zealand</td><td>09:00–19:00</td><td>10:00–18:00</td><td>NZST / NZDT</td><td>9–10 hrs ahead</td></tr>
+        <tr><td>AU — Australia</td><td>09:00–19:00</td><td>10:00–17:00</td><td>See city table</td><td>6–8 hrs ahead</td></tr>
+        <tr><td>CA — Canada</td><td>09:00–20:00</td><td>10:00–18:00</td><td>Multiple zones</td><td>6–9 hrs behind</td></tr>
+        <tr><td>MX — Mexico</td><td>09:00–20:00</td><td>10:00–18:00</td><td>CST / MST / PST</td><td>7–9 hrs behind</td></tr>
       </tbody>
     </table>
 
-    <div class="callout warning">
-      <p>WhatsApp: contact inside the window; outside only with prior consent and <strong>never after 21:00 local</strong>.</p>
-    </div>
+    <div class="callout warn"><p>WhatsApp: contact inside the window only; outside only with prior consent and <strong>never after 21:00 local time</strong>.</p></div>
 
-    <h2>Channel rules by type</h2>
+    <h2>Channel rules</h2>
     <ul>
-      <li><strong>Phone:</strong> contact only inside the window</li>
-      <li><strong>WhatsApp:</strong> inside window; outside only with prior consent, never after 21:00 local</li>
-      <li><strong>Email:</strong> schedule to land inside the window unless it's a service alert the player asked for</li>
+      <li><strong>Phone</strong> — contact only inside the window</li>
+      <li><strong>WhatsApp</strong> — inside window; outside only with prior consent, never after 21:00 local</li>
+      <li><strong>Email</strong> — schedule to land inside the window unless it's a service alert the player requested</li>
     </ul>
   </div>
 
@@ -990,28 +757,27 @@
     </ul>
 
     <h2>Individual KPIs — soft (coaching)</h2>
+    <p>Monitored for coaching and performance reviews. Sustained drops prompt intervention but do not directly affect the quarterly bonus unless promoted to a hard KPI.</p>
     <ul>
       <li>Follow-up rate — complete required cadence steps daily</li>
-      <li>Conversion / save rate — ~12% benchmark of targeted players depositing within 7 days</li>
+      <li>Conversion / save rate — ~12% benchmark within 7 days</li>
       <li>Individual QA / CSAT trend</li>
       <li>Workload balance</li>
       <li>Discovery capture rate</li>
-      <li>Time-to-welcome (Platinum upgrade)</li>
+      <li>Time-to-welcome on Platinum upgrade</li>
       <li>Handover quality</li>
       <li>SLA adherence</li>
     </ul>
 
     <h2>Individual KPIs — hard (gate to team bonus)</h2>
-    <div class="callout warning">
-      <p>Failing a hard gate disqualifies the agent from that period's team bonus share even if the team pool pays.</p>
-    </div>
+    <div class="callout warn"><p>Failing a hard gate disqualifies the agent from that period's team bonus share, even if the team pool pays.</p></div>
     <ul>
-      <li><strong>Compliance:</strong> zero red-line breaches per CS SOP</li>
-      <li><strong>QA minimum:</strong> quarterly pass rate ≥ 80%</li>
-      <li><strong>Attendance:</strong> meets Attendance Policy</li>
-      <li><strong>Documentation:</strong> CBO note hygiene meets Annex E in spot checks</li>
-      <li><strong>Next-step compliance:</strong> ≥ 95% on goodwill grants</li>
-      <li><strong>Voice connect volume:</strong> VIP AMs avg 6 connects/shift; Retention avg 2 connects/shift</li>
+      <li><strong>Compliance</strong> — zero red-line breaches per CS SOP</li>
+      <li><strong>QA minimum</strong> — quarterly pass rate ≥ 80%</li>
+      <li><strong>Attendance</strong> — meets Attendance Policy per Employee Handbook</li>
+      <li><strong>Documentation</strong> — CBO note hygiene meets Annex E in spot checks</li>
+      <li><strong>Next-step compliance</strong> — ≥ 95% of goodwill grants have a documented next step</li>
+      <li><strong>Voice connect volume</strong> — VIP AMs avg 6 connects/shift; Retention avg 2 connects/shift</li>
     </ul>
   </div>
 
@@ -1025,12 +791,12 @@
     <table>
       <thead><tr><th>Tool</th><th>Purpose</th></tr></thead>
       <tbody>
-        <tr><td><strong>CBO</strong></td><td>Central player CRM. Log all interactions, review account status, manage bonuses, execute tier changes. Single source of truth.</td></tr>
-        <tr><td><strong>Dixa</strong></td><td>Approved platform for calls, live chat, and email ticketing. All calls must go through Dixa. No personal phones or unapproved apps.</td></tr>
-        <tr><td><strong>Slack</strong></td><td>#hnv-handover (handovers), #vip-alerts (urgent issues), #withdrawal-questions (payments coordination). Never share personal player data — IDs only.</td></tr>
-        <tr><td><strong>Dashboards</strong></td><td>Deposit tracker, activity monitor. Retention outreach tracker in spreadsheets/Trello.</td></tr>
-        <tr><td><strong>Calendly</strong></td><td>Schedule player calls. Use single-use links. VIP AMs use personal collective events; Retention uses round-robin "Player Relations Call." Keep calendar hygiene up to date 7 days ahead.</td></tr>
-        <tr><td><strong>Knowledge Base</strong></td><td>SOPs, compliance rules, talk tracks. Reference regularly. Stay updated when Team Leads announce revisions.</td></tr>
+        <tr><td><strong>CBO</strong></td><td>Central player CRM and single source of truth. Log all interactions, review account status, manage bonuses, execute tier changes.</td></tr>
+        <tr><td><strong>Dixa</strong></td><td>Approved platform for calls, live chat, and email. All calls must go through Dixa. No personal phones or unapproved apps.</td></tr>
+        <tr><td><strong>Slack</strong></td><td>#hnv-handover (handovers), #vip-alerts (urgent issues), #withdrawal-questions (Payments coordination). IDs and account links only — no personal player data.</td></tr>
+        <tr><td><strong>Dashboards</strong></td><td>Deposit tracker, activity monitor. Retention outreach tracker in spreadsheets or Trello.</td></tr>
+        <tr><td><strong>Calendly</strong></td><td>Schedule player calls. Use single-use links. VIP AMs use personal collective events; Retention uses the round-robin "Player Relations Call." Keep availability synced 7 days ahead.</td></tr>
+        <tr><td><strong>Knowledge Base</strong></td><td>SOPs, compliance rules, talk tracks. Reference regularly and stay updated when Team Leads announce revisions.</td></tr>
       </tbody>
     </table>
   </div>
@@ -1042,19 +808,19 @@
       <h1>Glossary</h1>
     </div>
     <div>
-      <div class="glossary-item"><div class="g-term">Acknowledgement (Ack)</div><div class="g-def">A simple confirmation (e.g. 👍 in Slack) that a tagged owner has taken responsibility after a handover. Ownership transfers only after ack or at shift change.</div></div>
+      <div class="glossary-item"><div class="g-term">Acknowledgement (Ack)</div><div class="g-def">A 👍 in Slack confirming a tagged owner has taken responsibility. Ownership transfers only after ack or at shift change.</div></div>
       <div class="glossary-item"><div class="g-term">BB note</div><div class="g-def">Billboard note — temporary, high-visibility banner on a player profile. Must include owner and expiry. Cleared when resolved.</div></div>
       <div class="glossary-item"><div class="g-term">CBO</div><div class="g-def">Central system of record. Every significant contact is logged here. If it's not in CBO, it didn't happen.</div></div>
-      <div class="glossary-item"><div class="g-term">Channel Matrix</div><div class="g-def">Table setting Primary → Backup → Fallback channels by segment and scenario. Player's recorded CBO preference overrides the matrix.</div></div>
+      <div class="glossary-item"><div class="g-term">Channel matrix</div><div class="g-def">Table setting Primary → Backup → Fallback channels by segment and scenario. Player's recorded CBO preference overrides the matrix.</div></div>
       <div class="glossary-item"><div class="g-term">Detractor</div><div class="g-def">A player who gave negative feedback or low CSAT. Treated as high-impact; recovery prioritized, usually voice first for VIP.</div></div>
       <div class="glossary-item"><div class="g-term">End-to-end ownership</div><div class="g-def">The engager owns the issue until a confirmed handover or shift change.</div></div>
       <div class="glossary-item"><div class="g-term">Goodwill</div><div class="g-def">Any value transfer (FS, chip, cash as last resort) for recognition or recovery. Every goodwill item must have a logged next step. Lead approval for large cases.</div></div>
-      <div class="glossary-item"><div class="g-term">HNV</div><div class="g-def">High Net Value. The HNV Desk sits above standard support to serve high-value players with proactive, personalized service.</div></div>
+      <div class="glossary-item"><div class="g-term">HNV</div><div class="g-def">High Net Value. The HNV Desk serves high-value players with proactive, personalized service above standard support.</div></div>
       <div class="glossary-item"><div class="g-term">Light loop</div><div class="g-def">Shortened reactivation sequence used when a player briefly returns and goes silent again. Shifts focus from "wake up" to "sustain momentum."</div></div>
       <div class="glossary-item"><div class="g-term">Next step</div><div class="g-def">The specific follow-up action and time window that ends every interaction. Logged in CBO. QA requires ≥95% of goodwill to have a documented next step.</div></div>
       <div class="glossary-item"><div class="g-term">NRBO</div><div class="g-def">Net Revenue Before Overhead. Used for HNV performance views in CBO dashboards.</div></div>
-      <div class="glossary-item"><div class="g-term">Portfolio</div><div class="g-def">The set of assigned Platinum or Black players owned by a VIP Account Manager for proactive care and decisions.</div></div>
-      <div class="glossary-item"><div class="g-term">Recognition</div><div class="g-def">A gesture given solely to celebrate loyalty, a milestone, or positive event. No conditions or pressure. Tag "Recognition Gift" in CBO. No next step required.</div></div>
+      <div class="glossary-item"><div class="g-term">Portfolio</div><div class="g-def">The set of assigned Platinum or Black players owned by a VIP Account Manager for proactive care.</div></div>
+      <div class="glossary-item"><div class="g-term">Recognition</div><div class="g-def">A gesture given solely to celebrate loyalty or a positive event — birthdays, big wins, upgrades. No conditions. Tag "Recognition Gift" in CBO.</div></div>
       <div class="glossary-item"><div class="g-term">Reactivation</div><div class="g-def">Outreach to regain an inactive player. The 8–21 day window is the sweet spot for conversion impact.</div></div>
       <div class="glossary-item"><div class="g-term">Save</div><div class="g-def">Post-withdrawal re-engagement. Celebratory tone after wins, caring tone after tough runs. Always log the attempt and next step.</div></div>
     </div>
@@ -1063,13 +829,12 @@
 </main>
 
 <script>
-function showSection(id) {
+function go(id, el) {
   document.querySelectorAll('.wiki-section').forEach(s => s.classList.remove('active'));
   document.querySelectorAll('.nav-link').forEach(l => l.classList.remove('active'));
-  var section = document.getElementById('s-' + id);
-  if (section) section.classList.add('active');
-  event.currentTarget.classList.add('active');
-  document.getElementById('main').scrollTop = 0;
+  var s = document.getElementById('s-' + id);
+  if (s) s.classList.add('active');
+  if (el) el.classList.add('active');
   window.scrollTo(0, 0);
 }
 </script>
