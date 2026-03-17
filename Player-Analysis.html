@@ -1,0 +1,1176 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Player Analysis Tool</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<style>
+*, *::before, *::after { box-sizing:border-box; margin:0; padding:0; }
+:root {
+  --bg:#0e0f11; --bg2:#16181c; --bg3:#1d1f24; --bg4:#24272e;
+  --border:rgba(255,255,255,0.08); --border2:rgba(255,255,255,0.14);
+  --text:#e8e9eb; --text2:#9a9da6; --text3:#5e6170;
+  --accent:#4f7ef8; --accent-glow:rgba(79,126,248,0.15);
+  --green:#34c97e; --green-bg:rgba(52,201,126,0.1);
+  --red:#f05252; --amber:#f5a623; --purple:#a78bfa;
+  --teal:#2dd4bf; --gold:#f5c842; --gold-bg:rgba(245,200,66,0.12);
+  --radius:10px; --radius-lg:14px;
+  --font:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
+}
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500&display=swap');
+html { font-size:14px; }
+body { font-family:var(--font); background:var(--bg); color:var(--text); min-height:100vh; line-height:1.5; }
+
+.topbar { display:flex; align-items:center; justify-content:space-between; padding:0 28px; height:56px; background:var(--bg2); border-bottom:1px solid var(--border); position:sticky; top:0; z-index:200; }
+.topbar-logo { display:flex; align-items:center; gap:10px; }
+.topbar-logo-icon { width:30px; height:30px; border-radius:8px; background:var(--accent); display:flex; align-items:center; justify-content:center; font-size:15px; }
+.topbar-logo-text { font-size:14px; font-weight:600; letter-spacing:-0.01em; }
+.topbar-logo-sub { font-size:11px; color:var(--text3); margin-top:1px; }
+.api-key-wrap { display:flex; align-items:center; gap:8px; }
+.api-key-label { font-size:11px; color:var(--text3); }
+.api-key-input { background:var(--bg3); border:1px solid var(--border); border-radius:6px; padding:5px 10px; font-size:12px; color:var(--text2); font-family:'JetBrains Mono',monospace; width:200px; outline:none; transition:border-color 0.15s; }
+.api-key-input:focus { border-color:var(--accent); color:var(--text); }
+.api-key-input::placeholder { color:var(--text3); }
+.api-status { width:7px; height:7px; border-radius:50%; background:var(--text3); transition:background 0.3s; }
+.api-status.active { background:var(--green); box-shadow:0 0 6px var(--green); }
+
+.screen { display:none; }
+.screen.active { display:block; }
+#upload-screen { display:none; min-height:calc(100vh - 56px); align-items:flex-start; justify-content:center; padding:40px 20px; overflow-y:auto; }
+#upload-screen.active { display:flex; }
+
+.upload-inner { width:100%; max-width:700px; padding-bottom:40px; }
+.upload-hero { text-align:center; margin-bottom:32px; }
+.upload-hero-icon { width:64px; height:64px; border-radius:18px; background:linear-gradient(135deg,var(--accent),var(--purple)); display:inline-flex; align-items:center; justify-content:center; font-size:28px; margin-bottom:20px; }
+.upload-hero h1 { font-size:24px; font-weight:600; letter-spacing:-0.02em; margin-bottom:10px; }
+.upload-hero p { font-size:14px; color:var(--text2); line-height:1.7; }
+.upload-cols { display:grid; grid-template-columns:1fr 1fr; gap:16px; margin-bottom:20px; }
+.upload-zone { border:1.5px dashed var(--border2); border-radius:var(--radius-lg); padding:28px 20px; text-align:center; cursor:pointer; background:var(--bg2); transition:all 0.2s; }
+.upload-zone:hover { border-color:var(--accent); background:var(--bg3); }
+.upload-zone.drag-over { border-color:var(--accent); background:var(--accent-glow); }
+.upload-zone-icon { font-size:26px; margin-bottom:10px; }
+.upload-zone h3 { font-size:14px; font-weight:500; margin-bottom:5px; }
+.upload-zone p { font-size:11px; color:var(--text3); line-height:1.6; }
+.browse { color:var(--accent); }
+.opt-label { display:inline-block; font-size:10px; font-weight:600; letter-spacing:0.05em; color:var(--amber); background:rgba(245,166,35,0.12); padding:2px 8px; border-radius:10px; margin-bottom:10px; }
+.req-label { display:inline-block; font-size:10px; font-weight:600; letter-spacing:0.05em; color:var(--accent); background:var(--accent-glow); padding:2px 8px; border-radius:10px; margin-bottom:10px; }
+.file-input { display:none; }
+.divider { display:flex; align-items:center; gap:12px; margin:16px 0; color:var(--text3); font-size:12px; }
+.divider::before,.divider::after { content:''; flex:1; height:1px; background:var(--border); }
+.sample-btn { width:100%; padding:12px; border-radius:var(--radius); background:var(--bg3); border:1px solid var(--border2); color:var(--text2); font-size:13px; font-weight:500; cursor:pointer; transition:all 0.15s; font-family:var(--font); }
+.sample-btn:hover { background:var(--bg4); border-color:var(--accent); color:var(--text); }
+.analyse-btn { width:100%; padding:12px; border-radius:var(--radius); background:var(--accent); border:1px solid var(--accent); color:#fff; font-size:13px; font-weight:600; cursor:pointer; transition:all 0.15s; font-family:var(--font); margin-bottom:10px; }
+.analyse-btn:disabled { opacity:0.4; cursor:not-allowed; }
+.analyse-btn:not(:disabled):hover { background:#3d67e0; }
+
+.sample-grid { display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-top:8px; }
+.sample-player-btn { display:flex; align-items:center; gap:12px; padding:12px 14px; background:var(--bg2); border:1px solid var(--border2); border-radius:var(--radius); cursor:pointer; transition:all 0.15s; text-align:left; font-family:var(--font); }
+.sample-player-btn:hover { border-color:var(--accent); background:var(--bg3); }
+.sample-player-btn:last-child { grid-column: span 2; }
+.sp-avatar { width:36px; height:36px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:13px; font-weight:600; flex-shrink:0; }
+.sp-info { flex:1; min-width:0; }
+.sp-name { font-size:13px; font-weight:500; color:var(--text); }
+.sp-meta { font-size:11px; color:var(--text3); margin-top:2px; }
+.sp-badge { font-size:10px; font-weight:600; padding:2px 7px; border-radius:10px; letter-spacing:0.03em; white-space:nowrap; }
+.sp-gold { background:var(--gold-bg); color:var(--gold); }
+.sp-silver { background:rgba(160,170,190,0.1); color:#a0aabe; }
+.sp-bronze { background:rgba(205,127,50,0.1); color:#cd7f32; }
+.sp-platinum { background:rgba(45,212,191,0.1); color:var(--teal); }
+
+.format-grid { display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-top:20px; }
+.format-card { background:var(--bg2); border:1px solid var(--border); border-radius:var(--radius); padding:14px; }
+.format-card-label { font-size:10px; font-weight:600; letter-spacing:0.06em; color:var(--accent); text-transform:uppercase; margin-bottom:8px; }
+.format-card pre { font-family:'JetBrains Mono',monospace; font-size:10px; color:var(--text3); line-height:1.7; white-space:pre-wrap; word-break:break-all; }
+
+#loading-screen { display:none; min-height:calc(100vh - 56px); align-items:center; justify-content:center; flex-direction:column; gap:20px; }
+#loading-screen.active { display:flex; }
+.loader-ring { width:44px; height:44px; border:2px solid var(--border2); border-top-color:var(--accent); border-radius:50%; animation:spin 0.8s linear infinite; }
+@keyframes spin { to { transform:rotate(360deg); } }
+.loader-text { font-size:14px; color:var(--text2); }
+
+#analysis-screen { display:none; }
+#analysis-screen.active { display:block; }
+.analysis-wrap { max-width:1280px; margin:0 auto; padding:24px 28px 60px; }
+
+.player-header { display:flex; align-items:center; justify-content:space-between; background:var(--bg2); border:1px solid var(--border); border-radius:var(--radius-lg); padding:20px 24px; margin-bottom:20px; flex-wrap:wrap; gap:12px; }
+.player-header-left { display:flex; align-items:center; gap:16px; }
+.avatar { width:52px; height:52px; border-radius:50%; background:linear-gradient(135deg,var(--accent),var(--purple)); display:flex; align-items:center; justify-content:center; font-size:18px; font-weight:600; flex-shrink:0; }
+.player-name { font-size:18px; font-weight:600; letter-spacing:-0.01em; }
+.player-meta-row { display:flex; align-items:center; gap:8px; margin-top:4px; flex-wrap:wrap; }
+.meta-chip { font-size:11px; color:var(--text3); padding:2px 8px; background:var(--bg3); border-radius:4px; border:1px solid var(--border); }
+.vip-badge { font-size:11px; font-weight:600; padding:3px 10px; border-radius:20px; letter-spacing:0.04em; }
+.vip-gold { background:var(--gold-bg); color:var(--gold); border:1px solid rgba(245,200,66,0.25); }
+.vip-silver { background:rgba(160,170,190,0.1); color:#a0aabe; border:1px solid rgba(160,170,190,0.2); }
+.vip-bronze { background:rgba(205,127,50,0.1); color:#cd7f32; border:1px solid rgba(205,127,50,0.2); }
+.vip-platinum { background:rgba(45,212,191,0.1); color:var(--teal); border:1px solid rgba(45,212,191,0.2); }
+.back-btn { font-size:12px; font-weight:500; padding:8px 16px; background:var(--bg3); border:1px solid var(--border2); border-radius:var(--radius); color:var(--text2); cursor:pointer; transition:all 0.15s; font-family:var(--font); }
+.back-btn:hover { border-color:var(--accent); color:var(--text); }
+
+.metrics-grid { display:grid; grid-template-columns:repeat(5,1fr); gap:12px; margin-bottom:20px; }
+.metric-card { background:var(--bg2); border:1px solid var(--border); border-radius:var(--radius-lg); padding:16px 18px; }
+.metric-label { font-size:11px; color:var(--text3); text-transform:uppercase; letter-spacing:0.05em; margin-bottom:8px; }
+.metric-value { font-size:22px; font-weight:600; letter-spacing:-0.02em; line-height:1; }
+.metric-sub { font-size:11px; color:var(--text3); margin-top:5px; }
+.metric-pos { color:var(--green); }
+.metric-neg { color:var(--red); }
+.metric-accent { color:var(--accent); }
+.metric-amber { color:var(--amber); }
+.metric-purple { color:var(--purple); }
+
+.charts-2col { display:grid; grid-template-columns:1fr 1fr; gap:14px; margin-bottom:14px; }
+.charts-3col { display:grid; grid-template-columns:1fr 1fr 1fr; gap:14px; margin-bottom:14px; }
+.chart-card { background:var(--bg2); border:1px solid var(--border); border-radius:var(--radius-lg); padding:20px; }
+.chart-wrap { position:relative; width:100%; height:200px; }
+.chart-wrap-lg { position:relative; width:100%; height:280px; }
+.bottom-row { display:grid; grid-template-columns:1fr 1.2fr; gap:14px; margin-bottom:14px; }
+
+.chart-header { display:flex; align-items:flex-start; justify-content:space-between; margin-bottom:14px; gap:8px; }
+.chart-header-text { flex:1; }
+.chart-title { font-size:13px; font-weight:600; color:var(--text); }
+.chart-subtitle { font-size:11px; color:var(--text3); margin-top:3px; }
+.info-btn { width:20px; height:20px; border-radius:50%; border:1px solid var(--border2); background:var(--bg3); color:var(--text3); font-size:11px; font-weight:600; cursor:pointer; display:flex; align-items:center; justify-content:center; flex-shrink:0; transition:all 0.15s; font-family:var(--font); line-height:1; margin-top:1px; }
+.info-btn:hover { border-color:var(--accent); color:var(--accent); background:var(--accent-glow); }
+
+.series-toggles { display:flex; gap:6px; flex-wrap:wrap; margin-bottom:14px; }
+.series-btn { display:flex; align-items:center; gap:5px; padding:5px 10px; border-radius:6px; border:1px solid var(--border2); background:var(--bg3); font-size:11px; font-weight:500; color:var(--text3); cursor:pointer; transition:all 0.15s; font-family:var(--font); }
+.series-btn:hover { border-color:var(--border); color:var(--text2); }
+.series-btn.active { color:var(--text); }
+.series-btn.active.s-dep   { border-color:rgba(79,126,248,0.6);  background:rgba(79,126,248,0.12);  color:#7fa5fa; }
+.series-btn.active.s-bal   { border-color:rgba(52,201,126,0.6);  background:rgba(52,201,126,0.12);  color:#5dd59c; }
+.series-btn.active.s-with  { border-color:rgba(240,82,82,0.6);   background:rgba(240,82,82,0.12);   color:#f47575; }
+.series-btn.active.s-bonus { border-color:rgba(245,166,35,0.6);  background:rgba(245,166,35,0.12);  color:#f7be61; }
+.series-dot { width:7px; height:7px; border-radius:50%; flex-shrink:0; }
+.s-dep .series-dot   { background:#4f7ef8; }
+.s-bal .series-dot   { background:#34c97e; }
+.s-with .series-dot  { background:#f05252; }
+.s-bonus .series-dot { background:#f5a623; }
+
+.promo-header-row { display:flex; align-items:center; justify-content:space-between; margin-bottom:14px; }
+.promo-tag { font-size:10px; font-weight:600; letter-spacing:0.05em; text-transform:uppercase; padding:4px 10px; border-radius:20px; background:var(--green-bg); color:var(--green); border:1px solid rgba(52,201,126,0.25); }
+.promo-name { font-size:16px; font-weight:600; margin-bottom:6px; letter-spacing:-0.01em; }
+.promo-desc { font-size:12px; color:var(--text2); line-height:1.6; margin-bottom:14px; }
+.promo-stats { display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-bottom:14px; }
+.promo-stat { background:var(--bg3); border-radius:8px; padding:10px 12px; }
+.promo-stat-label { font-size:10px; color:var(--text3); margin-bottom:4px; }
+.promo-stat-value { font-size:14px; font-weight:600; color:var(--text); }
+.promo-conf-value { color:var(--green); }
+.promo-reason { font-size:12px; color:var(--text2); line-height:1.6; padding:12px 14px; background:var(--accent-glow); border-radius:8px; border-left:2px solid var(--accent); }
+
+.fin-table-wrap { overflow-x:auto; max-height:320px; overflow-y:auto; margin-top:12px; }
+.fin-table { width:100%; border-collapse:collapse; font-size:12px; }
+.fin-table th { text-align:left; padding:8px 12px; font-size:10px; font-weight:600; letter-spacing:0.05em; text-transform:uppercase; color:var(--text3); border-bottom:1px solid var(--border); position:sticky; top:0; background:var(--bg2); }
+.fin-table td { padding:9px 12px; border-bottom:1px solid var(--border); color:var(--text2); }
+.fin-table tr:last-child td { border-bottom:none; }
+.fin-table tr:hover td { background:var(--bg3); }
+.type-dep { color:var(--accent); font-weight:500; }
+.type-with { color:var(--red); font-weight:500; }
+.type-bonus { color:var(--amber); font-weight:500; }
+.status-approved { color:var(--green); font-size:11px; }
+.bal-cell { font-family:'JetBrains Mono',monospace; font-size:11px; color:var(--text); }
+
+.ai-card { background:var(--bg2); border:1px solid var(--border); border-radius:var(--radius-lg); padding:20px; margin-bottom:14px; }
+.ai-header { display:flex; align-items:center; gap:10px; margin-bottom:14px; }
+.ai-pulse { width:8px; height:8px; border-radius:50%; background:var(--green); box-shadow:0 0 8px var(--green); animation:aiglow 2s ease-in-out infinite; }
+@keyframes aiglow { 0%,100%{opacity:1} 50%{opacity:0.4} }
+.ai-title { font-size:13px; font-weight:600; }
+.ai-model { font-size:11px; color:var(--text3); margin-left:auto; font-family:'JetBrains Mono',monospace; }
+.ai-body { font-size:13px; color:var(--text2); line-height:1.8; }
+.ai-body p+p { margin-top:10px; }
+.ai-loading { display:flex; align-items:center; gap:10px; color:var(--text3); font-size:13px; }
+.dots { display:flex; gap:4px; }
+.dots span { width:6px; height:6px; border-radius:50%; background:var(--text3); animation:dotpulse 1.4s infinite; }
+.dots span:nth-child(2) { animation-delay:0.2s; }
+.dots span:nth-child(3) { animation-delay:0.4s; }
+@keyframes dotpulse { 0%,80%,100%{opacity:0.2} 40%{opacity:1} }
+.ai-error { color:var(--text3); font-size:13px; font-style:italic; }
+
+.modal-backdrop { position:fixed; inset:0; background:rgba(0,0,0,0.65); z-index:500; display:flex; align-items:center; justify-content:center; padding:20px; opacity:0; pointer-events:none; transition:opacity 0.18s; }
+.modal-backdrop.open { opacity:1; pointer-events:all; }
+.modal { background:var(--bg2); border:1px solid var(--border2); border-radius:var(--radius-lg); padding:28px; max-width:480px; width:100%; max-height:80vh; overflow-y:auto; transform:translateY(12px); transition:transform 0.18s; }
+.modal-backdrop.open .modal { transform:translateY(0); }
+.modal-header { display:flex; align-items:center; justify-content:space-between; margin-bottom:18px; }
+.modal-title { font-size:15px; font-weight:600; color:var(--text); }
+.modal-close { width:28px; height:28px; border-radius:6px; border:1px solid var(--border); background:var(--bg3); color:var(--text3); font-size:16px; cursor:pointer; display:flex; align-items:center; justify-content:center; transition:all 0.15s; line-height:1; font-family:var(--font); }
+.modal-close:hover { border-color:var(--border2); color:var(--text); }
+.modal-section { margin-bottom:16px; }
+.modal-section:last-child { margin-bottom:0; }
+.modal-section-label { font-size:10px; font-weight:600; letter-spacing:0.06em; text-transform:uppercase; color:var(--accent); margin-bottom:6px; }
+.modal-section p { font-size:13px; color:var(--text2); line-height:1.7; }
+
+::-webkit-scrollbar { width:6px; height:6px; }
+::-webkit-scrollbar-track { background:var(--bg); }
+::-webkit-scrollbar-thumb { background:var(--bg4); border-radius:3px; }
+
+@media(max-width:900px) {
+  .metrics-grid { grid-template-columns:repeat(2,1fr); }
+  .charts-2col,.charts-3col,.bottom-row { grid-template-columns:1fr; }
+  .upload-cols,.format-grid,.sample-grid { grid-template-columns:1fr; }
+  .sample-player-btn:last-child { grid-column:span 1; }
+  .analysis-wrap { padding:16px; }
+  .topbar { padding:0 16px; }
+  .api-key-wrap { display:none; }
+}
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="topbar-logo">
+    <div class="topbar-logo-icon">🃏</div>
+    <div>
+      <div class="topbar-logo-text">Player Analysis</div>
+      <div class="topbar-logo-sub">HNV ANALYSIS PLATFORM</div>
+    </div>
+  </div>
+  <div class="api-key-wrap">
+    <div class="api-key-label">Anthropic API key</div>
+    <input type="password" id="api-key-input" class="api-key-input" placeholder="sk-ant-..." oninput="handleApiKeyInput(this.value)">
+    <div class="api-status" id="api-status"></div>
+  </div>
+</div>
+
+<div class="modal-backdrop" id="info-modal" onclick="closeModal(event)">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-title" id="modal-title">Widget info</div>
+      <button class="modal-close" onclick="closeModal()">×</button>
+    </div>
+    <div id="modal-body"></div>
+  </div>
+</div>
+
+<div id="upload-screen" class="screen active">
+  <div class="upload-inner">
+    <div class="upload-hero">
+      <div class="upload-hero-icon">🃏</div>
+      <h1>Player Analysis Tool</h1>
+      <p>Upload a player profile CSV plus an optional financial history CSV to generate a full behavioural dashboard with AI-powered insights, risk profiling, and promotion recommendations.</p>
+    </div>
+    <div class="upload-cols">
+      <div class="upload-zone" id="upload-zone-player" onclick="document.getElementById('file-player').click()">
+        <div class="req-label">Required</div>
+        <div class="upload-zone-icon">👤</div>
+        <h3>Player profile CSV</h3>
+        <p>or <span class="browse">click to browse</span></p>
+        <p style="margin-top:8px;font-size:11px;" id="player-file-name">No file selected</p>
+      </div>
+      <div class="upload-zone" id="upload-zone-history" onclick="document.getElementById('file-history').click()">
+        <div class="opt-label">Optional</div>
+        <div class="upload-zone-icon">📊</div>
+        <h3>Financial history CSV</h3>
+        <p>or <span class="browse">click to browse</span></p>
+        <p style="margin-top:8px;font-size:11px;" id="history-file-name">No file selected</p>
+      </div>
+    </div>
+    <input type="file" id="file-player" class="file-input" accept=".csv,.txt" onchange="handlePlayerFile(this)">
+    <input type="file" id="file-history" class="file-input" accept=".csv,.txt" onchange="handleHistoryFile(this)">
+    <button class="analyse-btn" id="analyse-btn" onclick="runFromFiles()" disabled>Analyse player →</button>
+    <div class="divider">or load a sample player</div>
+    <div class="sample-grid">
+      <button class="sample-player-btn" onclick="loadSample(0)">
+        <div class="sp-avatar" style="background:linear-gradient(135deg,#4f7ef8,#a78bfa);">JH</div>
+        <div class="sp-info"><div class="sp-name">James Hartwell</div><div class="sp-meta">High-value · Slots · 313 sessions</div></div>
+        <div class="sp-badge sp-gold">GOLD</div>
+      </button>
+      <button class="sample-player-btn" onclick="loadSample(1)">
+        <div class="sp-avatar" style="background:linear-gradient(135deg,#2dd4bf,#4f7ef8);">SC</div>
+        <div class="sp-info"><div class="sp-name">Sophia Chen</div><div class="sp-meta">Loyal · Live Casino · 512 sessions</div></div>
+        <div class="sp-badge sp-platinum">PLATINUM</div>
+      </button>
+      <button class="sample-player-btn" onclick="loadSample(2)">
+        <div class="sp-avatar" style="background:linear-gradient(135deg,#f5a623,#f05252);">MO</div>
+        <div class="sp-info"><div class="sp-name">Marcus O'Brien</div><div class="sp-meta">Bonus-active · Blackjack · 98 sessions</div></div>
+        <div class="sp-badge sp-silver">SILVER</div>
+      </button>
+      <button class="sample-player-btn" onclick="loadSample(3)">
+        <div class="sp-avatar" style="background:linear-gradient(135deg,#cd7f32,#f5a623);">PV</div>
+        <div class="sp-info"><div class="sp-name">Priya Vasquez</div><div class="sp-meta">Irregular · Roulette · 41 sessions</div></div>
+        <div class="sp-badge sp-bronze">BRONZE</div>
+      </button>
+      <button class="sample-player-btn" onclick="loadSample(4)" style="grid-column:span 2;">
+        <div class="sp-avatar" style="background:linear-gradient(135deg,#34c97e,#2dd4bf);">DK</div>
+        <div class="sp-info"><div class="sp-name">Daniel Kowalski</div><div class="sp-meta">Recovering · Poker · 187 sessions · recently lapsed</div></div>
+        <div class="sp-badge sp-silver">SILVER</div>
+      </button>
+    </div>
+    <div class="format-grid">
+      <div class="format-card">
+        <div class="format-card-label">Player profile CSV (vertical key,value)</div>
+        <pre>Player ID,P-44821
+Name,James Hartwell
+Tier,Gold
+Join Date,2022-03-15
+Last Login,2024-12-10
+Deposits,10930
+Bonuses,1050
+Cash Given,200
+Withdrawals,4420
+Game Sessions,313
+Wagering,18500
+Favorite Game,Slots
+2nd Game,Blackjack
+3rd Game,Roulette
+VIP Manager,Sarah Jones</pre>
+      </div>
+      <div class="format-card">
+        <div class="format-card-label">Financial history CSV (horizontal rows)</div>
+        <pre>Date,Type,Amount,Status,Balance
+2024-01-05,Deposit,500,Approved,500
+2024-01-12,Bonus,50,Approved,550
+2024-01-20,Withdrawal,200,Approved,350
+2024-02-03,Deposit,750,Approved,1100
+2024-02-14,Bonus,100,Pending,1100
+2024-03-01,Deposit,600,Approved,1700</pre>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div id="loading-screen" class="screen">
+  <div class="loader-ring"></div>
+  <div class="loader-text" id="loader-text">Analysing player data...</div>
+</div>
+
+<div id="analysis-screen" class="screen">
+  <div class="analysis-wrap">
+
+    <div class="player-header">
+      <div class="player-header-left">
+        <div class="avatar" id="player-avatar">JH</div>
+        <div>
+          <div style="display:flex;align-items:center;gap:10px;">
+            <div class="player-name" id="player-name">—</div>
+            <div class="vip-badge vip-gold" id="vip-badge">GOLD</div>
+          </div>
+          <div class="player-meta-row">
+            <div class="meta-chip" id="meta-id">ID: —</div>
+            <div class="meta-chip" id="meta-since">Joined —</div>
+            <div class="meta-chip" id="meta-login">Last login —</div>
+            <div class="meta-chip" id="meta-manager">Manager: —</div>
+          </div>
+        </div>
+      </div>
+      <button class="back-btn" onclick="resetTool()">← New analysis</button>
+    </div>
+
+    <!-- Stat cards: daily averages when history available, profile totals otherwise -->
+    <div class="metrics-grid">
+      <div class="metric-card">
+        <div class="metric-label" id="lbl-dep">Total deposits</div>
+        <div class="metric-value metric-accent" id="m-dep">—</div>
+        <div class="metric-sub" id="m-dep-sub">—</div>
+      </div>
+      <div class="metric-card">
+        <div class="metric-label" id="lbl-with">Total withdrawals</div>
+        <div class="metric-value metric-neg" id="m-with">—</div>
+        <div class="metric-sub" id="m-with-sub">—</div>
+      </div>
+      <div class="metric-card">
+        <div class="metric-label" id="lbl-bonus">Bonuses</div>
+        <div class="metric-value metric-amber" id="m-bonus">—</div>
+        <div class="metric-sub" id="m-bonus-sub">—</div>
+      </div>
+      <div class="metric-card">
+        <div class="metric-label">Total wagering</div>
+        <div class="metric-value metric-purple" id="m-wager">—</div>
+        <div class="metric-sub" id="m-wager-sub">—</div>
+      </div>
+      <div class="metric-card">
+        <div class="metric-label">Net (house)</div>
+        <div class="metric-value" id="m-net">—</div>
+        <div class="metric-sub" id="m-net-sub">—</div>
+      </div>
+    </div>
+
+    <div class="charts-2col">
+      <div class="chart-card">
+        <div class="chart-header">
+          <div class="chart-header-text">
+            <div class="chart-title">Game preferences</div>
+            <div class="chart-subtitle">Top 3 games by estimated sessions</div>
+          </div>
+          <button class="info-btn" onclick="showInfo('games')">i</button>
+        </div>
+        <div class="chart-wrap"><canvas id="chart-games"></canvas></div>
+      </div>
+      <div class="chart-card">
+        <div class="chart-header">
+          <div class="chart-header-text">
+            <div class="chart-title">Behavioural risk profile</div>
+            <div class="chart-subtitle">Six-dimension radar (0–100)</div>
+          </div>
+          <button class="info-btn" onclick="showInfo('risk')">i</button>
+        </div>
+        <div class="chart-wrap"><canvas id="chart-risk"></canvas></div>
+      </div>
+    </div>
+
+    <div id="section-overview" style="display:none;margin-bottom:14px;">
+      <div class="chart-card">
+        <div class="chart-header">
+          <div class="chart-header-text">
+            <div class="chart-title">Financial overview — daily amounts</div>
+            <div class="chart-subtitle" id="overview-sub">Daily transaction amounts from join date to present</div>
+          </div>
+          <button class="info-btn" onclick="showInfo('overview')">i</button>
+        </div>
+        <div class="series-toggles">
+          <button class="series-btn s-dep active" id="tbtn-dep" onclick="toggleSeries('dep')"><span class="series-dot"></span>Deposits</button>
+          <button class="series-btn s-bal active" id="tbtn-bal" onclick="toggleSeries('bal')"><span class="series-dot"></span>Balance</button>
+          <button class="series-btn s-with active" id="tbtn-with" onclick="toggleSeries('with')"><span class="series-dot"></span>Withdrawals</button>
+          <button class="series-btn s-bonus active" id="tbtn-bonus" onclick="toggleSeries('bonus')"><span class="series-dot"></span>Bonuses &amp; Cash</button>
+        </div>
+        <div class="chart-wrap-lg"><canvas id="chart-overview"></canvas></div>
+      </div>
+    </div>
+
+    <div id="section-breakdown" style="display:none;margin-bottom:14px;" class="charts-3col">
+      <div class="chart-card">
+        <div class="chart-header">
+          <div class="chart-header-text"><div class="chart-title">Monthly deposits</div><div class="chart-subtitle">Approved transactions</div></div>
+          <button class="info-btn" onclick="showInfo('monthly-dep')">i</button>
+        </div>
+        <div class="chart-wrap"><canvas id="chart-dep-hist"></canvas></div>
+      </div>
+      <div class="chart-card">
+        <div class="chart-header">
+          <div class="chart-header-text"><div class="chart-title">Monthly withdrawals</div><div class="chart-subtitle">Approved transactions</div></div>
+          <button class="info-btn" onclick="showInfo('monthly-with')">i</button>
+        </div>
+        <div class="chart-wrap"><canvas id="chart-with-hist"></canvas></div>
+      </div>
+      <div class="chart-card">
+        <div class="chart-header">
+          <div class="chart-header-text"><div class="chart-title">Transaction mix</div><div class="chart-subtitle">Count by type (approved only)</div></div>
+          <button class="info-btn" onclick="showInfo('txn-mix')">i</button>
+        </div>
+        <div class="chart-wrap"><canvas id="chart-txn-mix"></canvas></div>
+      </div>
+    </div>
+
+    <div class="bottom-row">
+      <div class="chart-card">
+        <div class="promo-header-row">
+          <div style="display:flex;align-items:center;gap:8px;">
+            <div class="chart-title">Recommended promotion</div>
+            <button class="info-btn" onclick="showInfo('promo')">i</button>
+          </div>
+          <div class="promo-tag">Best fit</div>
+        </div>
+        <div class="promo-name" id="promo-name">—</div>
+        <div class="promo-desc" id="promo-desc">—</div>
+        <div class="promo-stats">
+          <div class="promo-stat"><div class="promo-stat-label">Offer value</div><div class="promo-stat-value" id="promo-value">—</div></div>
+          <div class="promo-stat"><div class="promo-stat-label">Wagering req.</div><div class="promo-stat-value" id="promo-wager">—</div></div>
+          <div class="promo-stat"><div class="promo-stat-label">Valid for</div><div class="promo-stat-value" id="promo-valid">—</div></div>
+          <div class="promo-stat"><div class="promo-stat-label">Confidence</div><div class="promo-stat-value promo-conf-value" id="promo-conf">—</div></div>
+        </div>
+        <div class="promo-reason" id="promo-reason">—</div>
+      </div>
+      <div class="chart-card">
+        <div class="chart-header">
+          <div class="chart-header-text">
+            <div class="chart-title" id="fin-table-title">Financial history</div>
+            <div class="chart-subtitle" id="fin-table-sub">Upload a financial history CSV to view transactions</div>
+          </div>
+          <button class="info-btn" onclick="showInfo('fin-table')">i</button>
+        </div>
+        <div class="fin-table-wrap">
+          <table class="fin-table">
+            <thead><tr><th>Date</th><th>Type</th><th>Amount</th><th>Status</th><th>Balance</th></tr></thead>
+            <tbody id="fin-table-body">
+              <tr><td colspan="5" style="color:var(--text3);text-align:center;padding:24px 0;">No financial history uploaded</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <div class="ai-card">
+      <div class="ai-header">
+        <div class="ai-pulse"></div>
+        <div class="ai-title">AI analyst summary</div>
+        <div class="ai-model">claude-sonnet-4</div>
+      </div>
+      <div id="ai-content">
+        <div class="ai-loading"><div class="dots"><span></span><span></span><span></span></div><span>Generating insights...</span></div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<script>
+let charts = {};
+let apiKey = '';
+let pendingPlayer = null;
+let pendingHistory = null;
+let seriesState = { dep:true, bal:true, with:true, bonus:true };
+
+function handleApiKeyInput(val) {
+  apiKey = val.trim();
+  document.getElementById('api-status').classList.toggle('active', apiKey.startsWith('sk-ant-') && apiKey.length > 20);
+}
+
+function showScreen(id) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+}
+
+function resetTool() {
+  Object.values(charts).forEach(c => { try { c.destroy(); } catch(e){} });
+  charts = {};
+  pendingPlayer = null; pendingHistory = null;
+  seriesState = { dep:true, bal:true, with:true, bonus:true };
+  ['player-file-name','history-file-name'].forEach(id => {
+    document.getElementById(id).textContent = 'No file selected';
+    document.getElementById(id).style.color = '';
+  });
+  document.getElementById('file-player').value = '';
+  document.getElementById('file-history').value = '';
+  document.getElementById('analyse-btn').disabled = true;
+  showScreen('upload-screen');
+}
+
+const INFO = {
+  games: { title:'Game preferences', sections:[
+    {label:'What this shows', text:'The top 3 games recorded in the player profile, visualised as a doughnut chart. Session counts are estimated proportionally (45% / 31% / 24%).'},
+    {label:'Why it matters', text:'Game preference is a key input for promotion targeting. A slots-dominant player responds better to free spins, while a live casino player suits cashback or table bonuses.'},
+    {label:'Data source', text:'Favorite Game, 2nd Game, 3rd Game, and Game Sessions from the player profile CSV.'}
+  ]},
+  risk: { title:'Behavioural risk profile', sections:[
+    {label:'What this shows', text:'A six-axis radar chart scored 0–100 across key risk and value dimensions.'},
+    {label:'Frequency', text:'Game sessions ÷ 400 × 100.'},
+    {label:'Velocity', text:'Total deposits ÷ £15,000 × 100.'},
+    {label:'Bonus risk', text:'(Bonuses ÷ deposits) × 200, capped at 100.'},
+    {label:'Churn risk', text:'<50 sessions = 70, 50–150 = 45, 150+ = 25.'},
+    {label:'LTV score', text:'Total deposits ÷ £12,000 × 100.'},
+    {label:'Engagement', text:'(Wagering ÷ deposits) × 50, capped at 100.'}
+  ]},
+  overview: { title:'Financial overview — daily amounts', sections:[
+    {label:'What this shows', text:'Each data point is a single approved transaction plotted on its date. Each series shows the individual transaction amount for that day — not a running cumulative total.'},
+    {label:'Deposits (blue)', text:'The deposit amount for each individual approved deposit transaction.'},
+    {label:'Balance (green)', text:'The account balance after each approved transaction, taken from the Balance column.'},
+    {label:'Withdrawals (red)', text:'The withdrawal amount for each individual approved withdrawal.'},
+    {label:'Bonuses & Cash (amber)', text:'The bonus amount for each individual bonus transaction.'},
+    {label:'Toggle buttons', text:'Each series can be shown or hidden independently.'}
+  ]},
+  'monthly-dep': { title:'Monthly deposits', sections:[
+    {label:'What this shows', text:'Total approved deposit value grouped by calendar month.'},
+    {label:'Data source', text:'Financial history CSV — Type = "Deposit", Status = "Approved", grouped by month.'}
+  ]},
+  'monthly-with': { title:'Monthly withdrawals', sections:[
+    {label:'What this shows', text:'Total approved withdrawal value grouped by calendar month.'},
+    {label:'Data source', text:'Financial history CSV — Type = "Withdrawal", Status = "Approved", grouped by month.'}
+  ]},
+  'txn-mix': { title:'Transaction mix', sections:[
+    {label:'What this shows', text:'Count (not value) of each transaction type across all approved transactions.'}
+  ]},
+  promo: { title:'Recommended promotion', sections:[
+    {label:'Gold', text:'Weekend Reload Bonus — responds to deposit frequency on weekends.'},
+    {label:'Silver', text:'Free Spins Pack — mid-tier slots engagement.'},
+    {label:'Bronze', text:'Cashback Tuesday — loss-protection, low wagering requirement.'},
+    {label:'Platinum', text:'VIP Loyalty Package — bespoke high-value personalised offer.'}
+  ]},
+  'fin-table': { title:'Financial history table', sections:[
+    {label:'What this shows', text:'Full transaction ledger, approved rows only, newest first.'},
+    {label:'Amount', text:'Deposits and bonuses positive (+), withdrawals negative (−).'},
+    {label:'Balance', text:'Account balance after each transaction, from your CSV.'}
+  ]}
+};
+
+function showInfo(key) {
+  const info = INFO[key]; if (!info) return;
+  document.getElementById('modal-title').textContent = info.title;
+  document.getElementById('modal-body').innerHTML = info.sections.map(s =>
+    `<div class="modal-section"><div class="modal-section-label">${s.label}</div>${s.text?`<p>${s.text}</p>`:''}</div>`
+  ).join('');
+  document.getElementById('info-modal').classList.add('open');
+}
+function closeModal(e) {
+  if (!e || e.target === document.getElementById('info-modal')) document.getElementById('info-modal').classList.remove('open');
+}
+document.addEventListener('keydown', e => { if (e.key === 'Escape') closeModal(); });
+
+['player','history'].forEach(type => {
+  const zone = document.getElementById('upload-zone-' + type);
+  zone.addEventListener('dragover', e => { e.preventDefault(); zone.classList.add('drag-over'); });
+  zone.addEventListener('dragleave', () => zone.classList.remove('drag-over'));
+  zone.addEventListener('drop', e => {
+    e.preventDefault(); zone.classList.remove('drag-over');
+    const f = e.dataTransfer.files[0]; if (!f) return;
+    if (type === 'player') processPlayerFile(f); else processHistoryFile(f);
+  });
+});
+
+function handlePlayerFile(inp) { if (inp.files[0]) processPlayerFile(inp.files[0]); }
+function handleHistoryFile(inp) { if (inp.files[0]) processHistoryFile(inp.files[0]); }
+
+function processPlayerFile(file) {
+  readText(file, text => {
+    pendingPlayer = parsePlayerCSV(text);
+    const el = document.getElementById('player-file-name');
+    el.textContent = '✓ ' + file.name; el.style.color = 'var(--green)';
+    document.getElementById('analyse-btn').disabled = false;
+  });
+}
+function processHistoryFile(file) {
+  readText(file, text => {
+    pendingHistory = parseHistoryCSV(text);
+    const el = document.getElementById('history-file-name');
+    el.textContent = '✓ ' + file.name + ' (' + pendingHistory.length + ' approved rows)';
+    el.style.color = 'var(--green)';
+  });
+}
+function readText(file, cb) {
+  const r = new FileReader();
+  r.onload = e => { try { cb(e.target.result); } catch(err) { alert('Could not parse file: ' + err.message); } };
+  r.readAsText(file);
+}
+function runFromFiles() {
+  if (!pendingPlayer) return;
+  pendingPlayer.history = pendingHistory || [];
+  runAnalysis(pendingPlayer);
+}
+
+function parsePlayerCSV(text) {
+  const lines = text.trim().split('\n').filter(l => l.trim());
+  const map = {};
+  lines.forEach(line => {
+    const i = line.indexOf(','); if (i === -1) return;
+    const k = line.slice(0,i).trim().toLowerCase().replace(/\s+/g,'_').replace(/[^a-z0-9_]/g,'');
+    const v = line.slice(i+1).trim().replace(/^"|"$/g,'');
+    map[k] = v;
+  });
+  return {
+    player_id: map.player_id||'—', name: map.name||'Unknown Player',
+    vip_tier: map.tier||map.vip_tier||'Standard',
+    join_date: map.join_date||'—', last_login: map.last_login||'—',
+    deposits: parseFloat(map.deposits)||0, bonuses: parseFloat(map.bonuses)||0,
+    cash_given: parseFloat(map.cash_given)||0, withdrawals: parseFloat(map.withdrawals)||0,
+    game_sessions: parseInt(map.game_sessions)||0, wagering: parseFloat(map.wagering)||0,
+    fav_game: map.favorite_game||'—', game2: map['2nd_game']||'—', game3: map['3rd_game']||'—',
+    vip_manager: map.vip_manager||'—', history: []
+  };
+}
+
+function parseHistoryCSV(text) {
+  const lines = text.trim().split('\n').filter(l => l.trim());
+  if (lines.length < 2) return [];
+  const headers = lines[0].split(',').map(h => h.trim().toLowerCase().replace(/\s+/g,'_'));
+  return lines.slice(1).map(line => {
+    const vals = splitCSV(line); const obj = {};
+    headers.forEach((h,i) => obj[h] = (vals[i]||'').trim().replace(/^"|"$/g,''));
+    return obj;
+  }).filter(r => (r.status||'').toLowerCase() === 'approved');
+}
+
+function splitCSV(line) {
+  const res=[]; let cur=''; let inQ=false;
+  for(let i=0;i<line.length;i++){
+    const c=line[i];
+    if(c==='"'){inQ=!inQ;} else if(c===','&&!inQ){res.push(cur);cur='';} else{cur+=c;}
+  }
+  res.push(cur); return res;
+}
+
+const SAMPLES = [
+  {
+    player_id:"P-44821", name:"James Hartwell", vip_tier:"Gold",
+    join_date:"2022-03-15", last_login:"2024-12-10",
+    deposits:10930, bonuses:1050, cash_given:200, withdrawals:4420,
+    game_sessions:313, wagering:18500,
+    fav_game:"Slots", game2:"Blackjack", game3:"Roulette",
+    vip_manager:"Sarah Jones",
+    ai_summary: [
+      "James Hartwell is a well-established Gold VIP player who has been active on the platform since March 2022, demonstrating consistent and growing deposit behaviour over his 33-month tenure. His cumulative deposit total of £10,930 paired with withdrawals of only £4,420 indicates that the majority of his funds remain in play, yielding a strong net house position of £6,510. His 313 game sessions and £18,500 in total wagering reflect a player who is genuinely engaged with the product rather than simply churning through bonus funds.",
+      "James shows a clear affinity for slots, which account for an estimated 45% of his sessions, followed by blackjack and roulette. His bonus uptake of £1,050 represents approximately 9.6% of total deposits — a moderate ratio that suggests he is responsive to offers without being a systematic bonus hunter. His engagement score is elevated, indicating that his deposited funds are being actively wagered at a healthy multiple.",
+      "Churn risk for James is assessed as low given his session frequency and sustained deposit trajectory. The primary retention consideration is maintaining personalised outreach through Sarah Jones, particularly around weekend periods where his deposit pattern peaks. A weekend reload bonus is the recommended next CRM touchpoint, with high confidence given his established behavioural pattern."
+    ],
+    history:[
+      {date:"2022-03-20",type:"Deposit",amount:"420",status:"Approved",balance:"420"},
+      {date:"2022-04-05",type:"Bonus",amount:"50",status:"Approved",balance:"470"},
+      {date:"2022-04-18",type:"Withdrawal",amount:"150",status:"Approved",balance:"320"},
+      {date:"2022-05-02",type:"Deposit",amount:"580",status:"Approved",balance:"900"},
+      {date:"2022-06-10",type:"Deposit",amount:"310",status:"Approved",balance:"1210"},
+      {date:"2022-06-22",type:"Withdrawal",amount:"200",status:"Approved",balance:"1010"},
+      {date:"2022-07-14",type:"Bonus",amount:"75",status:"Approved",balance:"1085"},
+      {date:"2022-08-03",type:"Deposit",amount:"750",status:"Approved",balance:"1835"},
+      {date:"2022-09-11",type:"Withdrawal",amount:"350",status:"Approved",balance:"1485"},
+      {date:"2022-10-05",type:"Deposit",amount:"920",status:"Approved",balance:"2405"},
+      {date:"2022-11-18",type:"Bonus",amount:"100",status:"Approved",balance:"2505"},
+      {date:"2022-12-02",type:"Deposit",amount:"640",status:"Approved",balance:"3145"},
+      {date:"2023-01-09",type:"Withdrawal",amount:"500",status:"Approved",balance:"2645"},
+      {date:"2023-02-14",type:"Deposit",amount:"1100",status:"Approved",balance:"3745"},
+      {date:"2023-03-01",type:"Bonus",amount:"125",status:"Approved",balance:"3870"},
+      {date:"2023-04-07",type:"Deposit",amount:"870",status:"Approved",balance:"4740"},
+      {date:"2023-04-20",type:"Withdrawal",amount:"800",status:"Approved",balance:"3940"},
+      {date:"2023-05-15",type:"Deposit",amount:"1250",status:"Approved",balance:"5190"},
+      {date:"2023-06-03",type:"Bonus",amount:"150",status:"Approved",balance:"5340"},
+      {date:"2023-07-01",type:"Deposit",amount:"990",status:"Approved",balance:"6330"},
+      {date:"2023-07-22",type:"Withdrawal",amount:"600",status:"Approved",balance:"5730"},
+      {date:"2023-08-10",type:"Deposit",amount:"1420",status:"Approved",balance:"7150"},
+      {date:"2023-09-05",type:"Bonus",amount:"200",status:"Approved",balance:"7350"},
+      {date:"2023-10-12",type:"Withdrawal",amount:"900",status:"Approved",balance:"6450"},
+      {date:"2023-11-01",type:"Deposit",amount:"1680",status:"Approved",balance:"8130"},
+      {date:"2024-01-05",type:"Deposit",amount:"500",status:"Approved",balance:"8630"},
+      {date:"2024-01-12",type:"Bonus",amount:"50",status:"Approved",balance:"8680"},
+      {date:"2024-01-20",type:"Withdrawal",amount:"200",status:"Approved",balance:"8480"},
+      {date:"2024-02-03",type:"Deposit",amount:"750",status:"Approved",balance:"9230"},
+      {date:"2024-03-01",type:"Deposit",amount:"600",status:"Approved",balance:"9830"},
+      {date:"2024-03-15",type:"Withdrawal",amount:"300",status:"Approved",balance:"9530"},
+      {date:"2024-04-02",type:"Deposit",amount:"900",status:"Approved",balance:"10430"},
+      {date:"2024-04-20",type:"Bonus",amount:"150",status:"Approved",balance:"10580"},
+      {date:"2024-05-01",type:"Withdrawal",amount:"500",status:"Approved",balance:"10080"},
+      {date:"2024-06-03",type:"Deposit",amount:"800",status:"Approved",balance:"10880"},
+      {date:"2024-07-01",type:"Deposit",amount:"1200",status:"Approved",balance:"12080"},
+      {date:"2024-07-22",type:"Bonus",amount:"200",status:"Approved",balance:"12280"},
+      {date:"2024-08-05",type:"Withdrawal",amount:"800",status:"Approved",balance:"11480"},
+      {date:"2024-09-02",type:"Deposit",amount:"1100",status:"Approved",balance:"12580"},
+      {date:"2024-10-04",type:"Deposit",amount:"870",status:"Approved",balance:"13450"},
+      {date:"2024-11-08",type:"Deposit",amount:"1350",status:"Approved",balance:"14800"},
+      {date:"2024-11-22",type:"Withdrawal",amount:"900",status:"Approved",balance:"13900"},
+      {date:"2024-12-01",type:"Deposit",amount:"1580",status:"Approved",balance:"15480"},
+      {date:"2024-12-10",type:"Bonus",amount:"300",status:"Approved",balance:"15780"}
+    ]
+  },
+  {
+    player_id:"P-11204", name:"Sophia Chen", vip_tier:"Platinum",
+    join_date:"2020-07-08", last_login:"2024-12-14",
+    deposits:38400, bonuses:3200, cash_given:1500, withdrawals:14200,
+    game_sessions:512, wagering:71000,
+    fav_game:"Live Casino", game2:"Roulette", game3:"Blackjack",
+    vip_manager:"Thomas Reid",
+    ai_summary: [
+      "Sophia Chen is one of the platform's highest-value Platinum players, having maintained continuous and growing activity since joining in July 2020. With cumulative deposits of £38,400 and withdrawals of £14,200, she represents a net house position of £24,200, placing her firmly in the top tier of long-term revenue contributors. Her 512 game sessions and £71,000 in total wagering over four and a half years demonstrate exceptional loyalty and product engagement.",
+      "Sophia's preference for Live Casino is a defining behavioural trait, followed by roulette and blackjack. Her bonus uptake of £3,200 is proportionally low relative to her deposit volume (around 8.3%), suggesting she is not primarily motivated by promotional offers but rather by the gaming experience itself.",
+      "Churn risk for Sophia is very low. The primary retention focus should be ensuring her live casino experience remains premium — dedicated table access, personalised cashback structures, and proactive outreach around live casino events. A bespoke VIP Loyalty Package is recommended as the next promotional touchpoint with a 97% confidence rating."
+    ],
+    history:[
+      {date:"2020-07-15",type:"Deposit",amount:"1200",status:"Approved",balance:"1200"},
+      {date:"2020-08-02",type:"Bonus",amount:"150",status:"Approved",balance:"1350"},
+      {date:"2020-09-10",type:"Deposit",amount:"1500",status:"Approved",balance:"2850"},
+      {date:"2020-10-05",type:"Withdrawal",amount:"800",status:"Approved",balance:"2050"},
+      {date:"2020-11-20",type:"Deposit",amount:"2000",status:"Approved",balance:"4050"},
+      {date:"2021-01-08",type:"Bonus",amount:"200",status:"Approved",balance:"4250"},
+      {date:"2021-02-14",type:"Deposit",amount:"2500",status:"Approved",balance:"6750"},
+      {date:"2021-03-22",type:"Withdrawal",amount:"1500",status:"Approved",balance:"5250"},
+      {date:"2021-05-01",type:"Deposit",amount:"2800",status:"Approved",balance:"8050"},
+      {date:"2021-06-18",type:"Bonus",amount:"300",status:"Approved",balance:"8350"},
+      {date:"2021-07-30",type:"Withdrawal",amount:"2000",status:"Approved",balance:"6350"},
+      {date:"2021-09-12",type:"Deposit",amount:"3200",status:"Approved",balance:"9550"},
+      {date:"2021-11-05",type:"Deposit",amount:"2900",status:"Approved",balance:"12450"},
+      {date:"2022-01-14",type:"Withdrawal",amount:"2500",status:"Approved",balance:"9950"},
+      {date:"2022-03-08",type:"Deposit",amount:"3500",status:"Approved",balance:"13450"},
+      {date:"2022-04-20",type:"Bonus",amount:"400",status:"Approved",balance:"13850"},
+      {date:"2022-06-15",type:"Deposit",amount:"3000",status:"Approved",balance:"16850"},
+      {date:"2022-08-02",type:"Withdrawal",amount:"3000",status:"Approved",balance:"13850"},
+      {date:"2022-10-10",type:"Deposit",amount:"3800",status:"Approved",balance:"17650"},
+      {date:"2022-12-01",type:"Bonus",amount:"500",status:"Approved",balance:"18150"},
+      {date:"2023-02-14",type:"Deposit",amount:"4000",status:"Approved",balance:"22150"},
+      {date:"2023-04-08",type:"Withdrawal",amount:"2200",status:"Approved",balance:"19950"},
+      {date:"2023-06-20",type:"Deposit",amount:"4200",status:"Approved",balance:"24150"},
+      {date:"2023-08-15",type:"Bonus",amount:"600",status:"Approved",balance:"24750"},
+      {date:"2023-10-01",type:"Withdrawal",amount:"2200",status:"Approved",balance:"22550"},
+      {date:"2023-12-10",type:"Deposit",amount:"4500",status:"Approved",balance:"27050"},
+      {date:"2024-02-08",type:"Bonus",amount:"500",status:"Approved",balance:"27550"},
+      {date:"2024-04-15",type:"Deposit",amount:"4800",status:"Approved",balance:"32350"},
+      {date:"2024-06-20",type:"Withdrawal",amount:"2000",status:"Approved",balance:"30350"},
+      {date:"2024-09-05",type:"Deposit",amount:"5000",status:"Approved",balance:"35350"},
+      {date:"2024-11-01",type:"Bonus",amount:"550",status:"Approved",balance:"35900"},
+      {date:"2024-12-14",type:"Withdrawal",amount:"2000",status:"Approved",balance:"33900"}
+    ]
+  },
+  {
+    player_id:"P-29037", name:"Marcus O'Brien", vip_tier:"Silver",
+    join_date:"2023-01-10", last_login:"2024-11-28",
+    deposits:4200, bonuses:820, cash_given:50, withdrawals:1100,
+    game_sessions:98, wagering:5800,
+    fav_game:"Blackjack", game2:"Slots", game3:"Video Poker",
+    vip_manager:"Lisa Farrell",
+    ai_summary: [
+      "Marcus O'Brien joined the platform in January 2023 and has progressed to Silver tier across a 23-month membership, accumulating £4,200 in deposits against £1,100 in withdrawals. His net house position of £3,100 is healthy for this tier, though his 98 game sessions suggest moderate but not yet consistent activity. His last login in late November 2024 indicates he remains active.",
+      "Marcus shows a clear preference for skill-based games, with blackjack as his primary product followed by slots and video poker. His bonus uptake of £820 represents 19.5% of total deposits — the highest ratio in the cohort — indicating he actively seeks promotional offers. This is a key signal that should inform the CRM approach.",
+      "Moderate session count combined with elevated bonus engagement places Marcus in a medium churn risk category. A targeted Free Spins Pack linked to his slot activity is recommended. Lisa Farrell should schedule a personal outreach call in the next two weeks to introduce the promotion, particularly given the recent quieter period in his activity pattern."
+    ],
+    history:[
+      {date:"2023-01-15",type:"Deposit",amount:"300",status:"Approved",balance:"300"},
+      {date:"2023-01-28",type:"Bonus",amount:"60",status:"Approved",balance:"360"},
+      {date:"2023-02-10",type:"Deposit",amount:"400",status:"Approved",balance:"760"},
+      {date:"2023-03-05",type:"Withdrawal",amount:"200",status:"Approved",balance:"560"},
+      {date:"2023-04-12",type:"Deposit",amount:"350",status:"Approved",balance:"910"},
+      {date:"2023-04-25",type:"Bonus",amount:"70",status:"Approved",balance:"980"},
+      {date:"2023-06-01",type:"Deposit",amount:"500",status:"Approved",balance:"1480"},
+      {date:"2023-07-14",type:"Withdrawal",amount:"300",status:"Approved",balance:"1180"},
+      {date:"2023-08-20",type:"Bonus",amount:"100",status:"Approved",balance:"1280"},
+      {date:"2023-09-08",type:"Deposit",amount:"450",status:"Approved",balance:"1730"},
+      {date:"2023-10-22",type:"Deposit",amount:"600",status:"Approved",balance:"2330"},
+      {date:"2023-11-15",type:"Bonus",amount:"120",status:"Approved",balance:"2450"},
+      {date:"2023-12-03",type:"Withdrawal",amount:"400",status:"Approved",balance:"2050"},
+      {date:"2024-01-18",type:"Deposit",amount:"500",status:"Approved",balance:"2550"},
+      {date:"2024-02-29",type:"Bonus",amount:"100",status:"Approved",balance:"2650"},
+      {date:"2024-04-10",type:"Deposit",amount:"600",status:"Approved",balance:"3250"},
+      {date:"2024-05-22",type:"Bonus",amount:"150",status:"Approved",balance:"3400"},
+      {date:"2024-06-30",type:"Withdrawal",amount:"200",status:"Approved",balance:"3200"},
+      {date:"2024-08-14",type:"Deposit",amount:"500",status:"Approved",balance:"3700"},
+      {date:"2024-09-25",type:"Bonus",amount:"120",status:"Approved",balance:"3820"},
+      {date:"2024-10-10",type:"Deposit",amount:"500",status:"Approved",balance:"4320"},
+      {date:"2024-11-28",type:"Bonus",amount:"100",status:"Approved",balance:"4420"}
+    ]
+  },
+  {
+    player_id:"P-55918", name:"Priya Vasquez", vip_tier:"Bronze",
+    join_date:"2024-02-01", last_login:"2024-10-18",
+    deposits:1850, bonuses:190, cash_given:0, withdrawals:620,
+    game_sessions:41, wagering:1900,
+    fav_game:"Roulette", game2:"Slots", game3:"Baccarat",
+    vip_manager:"Lisa Farrell",
+    ai_summary: [
+      "Priya Vasquez is a relatively new Bronze-tier player who joined in February 2024, with a ten-month active period and cumulative deposits of £1,850. Her withdrawal amount of £620 is proportionally high relative to deposits, suggesting some winning sessions or conservative bankroll management. Her last login was in October 2024, representing a two-month gap that is a meaningful early signal for a player of such short tenure.",
+      "Priya's game preferences centre on roulette, complemented by slots and baccarat — a mixed profile typical of early-stage players still exploring the platform. Her bonus uptake of £190 is modest but within normal parameters at 10.3% of deposits. The low wagering total of £1,900 indicates she is not yet deeply engaged at a frequency that would signal strong retention.",
+      "Priya's churn risk is elevated due to low session count, short tenure, and the two-month login gap. The immediate CRM priority should be a re-engagement campaign using the Cashback Tuesday promotion. Lisa Farrell should initiate personal contact within the next week, framing around her roulette preference and live table promotions. If no response within 14 days, a follow-up email with a time-limited bonus credit should be triggered."
+    ],
+    history:[
+      {date:"2024-02-05",type:"Deposit",amount:"200",status:"Approved",balance:"200"},
+      {date:"2024-02-18",type:"Bonus",amount:"40",status:"Approved",balance:"240"},
+      {date:"2024-03-02",type:"Deposit",amount:"250",status:"Approved",balance:"490"},
+      {date:"2024-03-20",type:"Withdrawal",amount:"150",status:"Approved",balance:"340"},
+      {date:"2024-04-08",type:"Deposit",amount:"300",status:"Approved",balance:"640"},
+      {date:"2024-04-25",type:"Bonus",amount:"50",status:"Approved",balance:"690"},
+      {date:"2024-05-14",type:"Withdrawal",amount:"200",status:"Approved",balance:"490"},
+      {date:"2024-06-02",type:"Deposit",amount:"350",status:"Approved",balance:"840"},
+      {date:"2024-07-10",type:"Deposit",amount:"300",status:"Approved",balance:"1140"},
+      {date:"2024-07-28",type:"Bonus",amount:"60",status:"Approved",balance:"1200"},
+      {date:"2024-08-15",type:"Withdrawal",amount:"270",status:"Approved",balance:"930"},
+      {date:"2024-09-01",type:"Deposit",amount:"250",status:"Approved",balance:"1180"},
+      {date:"2024-09-22",type:"Bonus",amount:"40",status:"Approved",balance:"1220"},
+      {date:"2024-10-05",type:"Deposit",amount:"200",status:"Approved",balance:"1420"},
+      {date:"2024-10-18",type:"Withdrawal",amount:"0",status:"Approved",balance:"1420"}
+    ]
+  },
+  {
+    player_id:"P-38204", name:"Daniel Kowalski", vip_tier:"Silver",
+    join_date:"2021-11-20", last_login:"2024-06-03",
+    deposits:7100, bonuses:640, cash_given:100, withdrawals:5900,
+    game_sessions:187, wagering:9200,
+    fav_game:"Poker", game2:"Blackjack", game3:"Live Casino",
+    vip_manager:"Sarah Jones",
+    ai_summary: [
+      "Daniel Kowalski is a Silver-tier player with a three-year history, having joined in November 2021 and remained active through mid-2024. His total deposits of £7,100 against withdrawals of £5,900 produce a net house position of only £1,200 — one of the lowest margins in the cohort relative to deposit volume, suggesting Daniel has been a consistently winning or break-even player. His last login was June 2024, now more than six months ago, making him a priority lapsed-player case.",
+      "Daniel's preferred games — poker, blackjack, and live casino — are all skill-influenced products, consistent with the low house margin in his financial history. His wagering total of £9,200 relative to £7,100 in deposits produces a moderate engagement score. His bonus uptake of £640 at around 9% of deposits is low, suggesting he is not primarily bonus-motivated.",
+      "Daniel's churn risk is currently high. The six-month login gap is significant and the combination of low house margin, skill-game preference, and extended absence makes re-engagement genuinely challenging. Sarah Jones should prioritise a direct personal call — not an automated email — to understand why Daniel stopped playing. If open to returning, a personalised offer linked to a poker tournament or live casino event would be most effective."
+    ],
+    history:[
+      {date:"2021-11-25",type:"Deposit",amount:"500",status:"Approved",balance:"500"},
+      {date:"2021-12-10",type:"Bonus",amount:"80",status:"Approved",balance:"580"},
+      {date:"2022-01-08",type:"Withdrawal",amount:"300",status:"Approved",balance:"280"},
+      {date:"2022-02-14",type:"Deposit",amount:"600",status:"Approved",balance:"880"},
+      {date:"2022-03-20",type:"Withdrawal",amount:"500",status:"Approved",balance:"380"},
+      {date:"2022-05-01",type:"Deposit",amount:"700",status:"Approved",balance:"1080"},
+      {date:"2022-06-15",type:"Bonus",amount:"100",status:"Approved",balance:"1180"},
+      {date:"2022-07-22",type:"Withdrawal",amount:"600",status:"Approved",balance:"580"},
+      {date:"2022-09-05",type:"Deposit",amount:"800",status:"Approved",balance:"1380"},
+      {date:"2022-10-18",type:"Withdrawal",amount:"700",status:"Approved",balance:"680"},
+      {date:"2022-12-01",type:"Deposit",amount:"900",status:"Approved",balance:"1580"},
+      {date:"2023-01-14",type:"Bonus",amount:"120",status:"Approved",balance:"1700"},
+      {date:"2023-02-28",type:"Withdrawal",amount:"800",status:"Approved",balance:"900"},
+      {date:"2023-04-10",type:"Deposit",amount:"800",status:"Approved",balance:"1700"},
+      {date:"2023-05-25",type:"Withdrawal",amount:"700",status:"Approved",balance:"1000"},
+      {date:"2023-07-08",type:"Deposit",amount:"700",status:"Approved",balance:"1700"},
+      {date:"2023-08-20",type:"Bonus",amount:"100",status:"Approved",balance:"1800"},
+      {date:"2023-09-30",type:"Withdrawal",amount:"800",status:"Approved",balance:"1000"},
+      {date:"2023-11-12",type:"Deposit",amount:"600",status:"Approved",balance:"1600"},
+      {date:"2023-12-28",type:"Withdrawal",amount:"600",status:"Approved",balance:"1000"},
+      {date:"2024-01-20",type:"Deposit",amount:"500",status:"Approved",balance:"1500"},
+      {date:"2024-02-14",type:"Bonus",amount:"120",status:"Approved",balance:"1620"},
+      {date:"2024-03-08",type:"Withdrawal",amount:"500",status:"Approved",balance:"1120"},
+      {date:"2024-04-22",type:"Deposit",amount:"500",status:"Approved",balance:"1620"},
+      {date:"2024-05-15",type:"Bonus",amount:"120",status:"Approved",balance:"1740"},
+      {date:"2024-06-03",type:"Withdrawal",amount:"700",status:"Approved",balance:"1040"}
+    ]
+  }
+];
+
+function loadSample(idx) { runAnalysis(SAMPLES[idx], true); }
+
+function runAnalysis(data, isSample) {
+  showScreen('loading-screen');
+  document.getElementById('loader-text').textContent = 'Analysing player data...';
+  seriesState = { dep:true, bal:true, with:true, bonus:true };
+  ['dep','bal','with','bonus'].forEach(k => document.getElementById('tbtn-'+k).classList.add('active'));
+  setTimeout(() => {
+    populateDashboard(data);
+    showScreen('analysis-screen');
+    if (isSample && data.ai_summary) {
+      document.getElementById('ai-content').innerHTML = data.ai_summary.map(p => `<p class="ai-body">${p}</p>`).join('');
+    } else {
+      fetchAISummary(data);
+    }
+  }, 700);
+}
+
+function fmt(n) {
+  n = parseFloat(n)||0;
+  if(Math.abs(n)>=1000) return '£'+(n/1000).toFixed(1)+'k';
+  return '£'+Math.round(n);
+}
+function destroyChart(id) { if(charts[id]){try{charts[id].destroy();}catch(e){}delete charts[id];} }
+
+function populateDashboard(d) {
+  const initials = (d.name||'P').split(' ').map(w=>w[0]).join('').toUpperCase().slice(0,2);
+  document.getElementById('player-avatar').textContent = initials;
+  document.getElementById('player-name').textContent = d.name||'Unknown';
+  document.getElementById('meta-id').textContent = 'ID: '+(d.player_id||'—');
+  document.getElementById('meta-since').textContent = 'Joined '+(d.join_date||'—');
+  document.getElementById('meta-login').textContent = 'Last login '+(d.last_login||'—');
+  document.getElementById('meta-manager').textContent = 'Manager: '+(d.vip_manager||'—');
+
+  const badge = document.getElementById('vip-badge');
+  const tier = (d.vip_tier||'Standard').toLowerCase();
+  badge.textContent = (d.vip_tier||'Standard').toUpperCase();
+  badge.className = 'vip-badge '+({'gold':'vip-gold','silver':'vip-silver','bronze':'vip-bronze','platinum':'vip-platinum'}[tier]||'vip-silver');
+
+  const hist = (d.history||[]).filter(r=>(r.status||'').toLowerCase()==='approved'||(r.status||'')==='');
+  const hasHistory = hist.length > 0;
+
+  // ── Stat cards: daily averages when history available ──
+  if (hasHistory) {
+    // Group transactions by date and sum per type per day
+    const dayMap = {};
+    hist.forEach(r => {
+      const date = r.date || '';
+      if (!date) return;
+      if (!dayMap[date]) dayMap[date] = { dep:0, with:0, bonus:0 };
+      const type = (r.type||'').toLowerCase();
+      const amt = parseFloat(r.amount)||0;
+      if (type==='deposit')    dayMap[date].dep  += amt;
+      if (type==='withdrawal') dayMap[date].with += amt;
+      if (type==='bonus')      dayMap[date].bonus+= amt;
+    });
+    const days = Object.values(dayMap);
+    const numDays = days.length || 1;
+    const avgDep   = days.reduce((s,d)=>s+d.dep,0)   / numDays;
+    const avgWith  = days.reduce((s,d)=>s+d.with,0)  / numDays;
+    const avgBonus = days.reduce((s,d)=>s+d.bonus,0) / numDays;
+    const dayLabel = `avg/day over ${numDays} active day${numDays===1?'':'s'}`;
+
+    document.getElementById('lbl-dep').textContent   = 'Avg daily deposits';
+    document.getElementById('lbl-with').textContent  = 'Avg daily withdrawals';
+    document.getElementById('lbl-bonus').textContent = 'Avg daily bonuses';
+    document.getElementById('m-dep').textContent    = fmt(avgDep);
+    document.getElementById('m-with').textContent   = fmt(avgWith);
+    document.getElementById('m-bonus').textContent  = fmt(avgBonus);
+    document.getElementById('m-dep-sub').textContent   = dayLabel;
+    document.getElementById('m-with-sub').textContent  = dayLabel;
+    document.getElementById('m-bonus-sub').textContent = dayLabel;
+  } else {
+    // Fallback to profile totals
+    document.getElementById('lbl-dep').textContent   = 'Total deposits';
+    document.getElementById('lbl-with').textContent  = 'Total withdrawals';
+    document.getElementById('lbl-bonus').textContent = 'Bonuses';
+    document.getElementById('m-dep').textContent    = fmt(d.deposits);
+    document.getElementById('m-with').textContent   = fmt(d.withdrawals);
+    document.getElementById('m-bonus').textContent  = fmt(d.bonuses);
+    document.getElementById('m-dep-sub').textContent   = (d.game_sessions||0)+' game sessions';
+    document.getElementById('m-with-sub').textContent  = 'Cash given: '+fmt(d.cash_given||0);
+    document.getElementById('m-bonus-sub').textContent = 'Bonus funds';
+  }
+
+  // Wagering and net always from profile
+  document.getElementById('m-wager').textContent = fmt(d.wagering);
+  document.getElementById('m-wager-sub').textContent = 'Total wagered';
+  const net = (parseFloat(d.deposits)||0)-(parseFloat(d.withdrawals)||0);
+  const ne = document.getElementById('m-net');
+  ne.textContent = (net>=0?'+':'')+fmt(net);
+  ne.className = 'metric-value '+(net>=0?'metric-pos':'metric-neg');
+  document.getElementById('m-net-sub').textContent = net>=0?'House advantage':'Player advantage';
+
+  // Game chart
+  const gc='rgba(255,255,255,0.05)', tc='#5e6170', tf={family:"'Inter',sans-serif",size:10};
+  destroyChart('chart-games');
+  const gl = [d.fav_game,d.game2,d.game3].filter(g=>g&&g!=='—');
+  const ses = d.game_sessions||100;
+  const gd = gl.length===3?[Math.round(ses*.45),Math.round(ses*.31),Math.round(ses*.24)]:gl.length===2?[Math.round(ses*.6),Math.round(ses*.4)]:[ses];
+  charts['chart-games'] = new Chart(document.getElementById('chart-games'),{
+    type:'doughnut',
+    data:{labels:gl,datasets:[{data:gd,backgroundColor:['rgba(79,126,248,0.85)','rgba(52,201,126,0.85)','rgba(245,166,35,0.85)'],borderWidth:1.5,borderColor:'#16181c'}]},
+    options:{responsive:true,maintainAspectRatio:false,cutout:'62%',plugins:{legend:{position:'right',labels:{color:tc,font:tf,boxWidth:10,boxHeight:8,padding:12}}}}
+  });
+
+  // Risk radar
+  const dep=parseFloat(d.deposits)||0, bon=parseFloat(d.bonuses)||0, wag=parseFloat(d.wagering)||0, s=parseFloat(d.game_sessions)||0;
+  const rp = {
+    frequency: Math.min(100,Math.round((s/400)*100)),
+    velocity:  Math.min(100,Math.round((dep/15000)*100)),
+    bonusRisk: Math.min(100,Math.round((bon/(dep||1))*200)),
+    churnRisk: s<50?70:s<150?45:25,
+    ltv:       Math.min(100,Math.round((dep/12000)*100)),
+    engagement:Math.min(100,Math.round((wag/(dep||1))*50))
+  };
+  destroyChart('chart-risk');
+  charts['chart-risk'] = new Chart(document.getElementById('chart-risk'),{
+    type:'radar',
+    data:{labels:['Frequency','Velocity','Bonus risk','Churn risk','LTV score','Engagement'],datasets:[{data:[rp.frequency,rp.velocity,rp.bonusRisk,rp.churnRisk,rp.ltv,rp.engagement],backgroundColor:'rgba(79,126,248,0.15)',borderColor:'#4f7ef8',borderWidth:1.5,pointBackgroundColor:'#4f7ef8',pointRadius:4,pointBorderWidth:0}]},
+    options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{r:{min:0,max:100,ticks:{color:tc,font:tf,stepSize:25,backdropColor:'transparent'},pointLabels:{color:tc,font:tf},grid:{color:gc},angleLines:{color:gc}}}}
+  });
+
+  // Promos
+  const promos = {
+    gold:{name:'Weekend Reload Bonus',desc:'50% reload on all deposits made Friday–Sunday, credited instantly up to £200.',value:'Up to £200',wager:'25x bonus',valid:'7 days',conf:'94%',reason:'High weekend deposit frequency detected. A weekend-triggered reload is likely to increase average deposit size by 18–25% based on established session patterns.'},
+    silver:{name:'Free Spins Pack',desc:'100 free spins across top slot titles, delivered over 5 days (20/day).',value:'100 spins',wager:'20x winnings',valid:'5 days',conf:'87%',reason:'Strong slots engagement with moderate bonus uptake. Spins leverage the preferred game category and encourage daily return visits without high bonus liability.'},
+    bronze:{name:'Cashback Tuesday',desc:'10% cashback on net losses every Tuesday, credited next morning as bonus funds.',value:'Up to £50/week',wager:'1x only',valid:'Weekly',conf:'81%',reason:'Irregular deposit pattern responds better to loss-mitigation offers. Low wagering requirement increases acceptance rate by ~30% in this segment.'},
+    platinum:{name:'VIP Loyalty Package',desc:'Bespoke monthly package: reload credits, free spins, and dedicated account manager.',value:'Bespoke',wager:'15x bonus',valid:'30 days',conf:'97%',reason:'Sustained high-volume deposits and consistent engagement. Personalised VIP packages reduce churn risk at this tier significantly.'}
+  };
+  const p = promos[tier]||promos.silver;
+  document.getElementById('promo-name').textContent = p.name;
+  document.getElementById('promo-desc').textContent = p.desc;
+  document.getElementById('promo-value').textContent = p.value;
+  document.getElementById('promo-wager').textContent = p.wager;
+  document.getElementById('promo-valid').textContent = p.valid;
+  document.getElementById('promo-conf').textContent = p.conf;
+  document.getElementById('promo-reason').textContent = p.reason;
+
+  if (hasHistory) {
+    buildOverviewChart(hist, d.join_date, tc, tf, gc);
+    buildMonthlyCharts(hist, tc, tf, gc);
+    buildHistoryTable(hist);
+    document.getElementById('section-overview').style.display='block';
+    document.getElementById('section-breakdown').style.display='grid';
+  } else {
+    document.getElementById('section-overview').style.display='none';
+    document.getElementById('section-breakdown').style.display='none';
+  }
+}
+
+// ── FINANCIAL OVERVIEW: individual transaction amounts (not cumulative) ──
+let overviewData = null;
+
+function buildOverviewChart(rows, joinDate, tc, tf, gc) {
+  const sorted = [...rows].sort((a,b)=>(a.date||'').localeCompare(b.date||''));
+  const labels=[], depData=[], balData=[], withData=[], bonusData=[];
+
+  sorted.forEach(r => {
+    const type=(r.type||'').toLowerCase(), amt=parseFloat(r.amount)||0;
+    labels.push(r.date||'');
+    // Each point = the individual transaction amount (not cumulative)
+    depData.push(  type==='deposit'    ? amt : null);
+    withData.push( type==='withdrawal' ? amt : null);
+    bonusData.push(type==='bonus'      ? amt : null);
+    balData.push(  parseFloat(r.balance)||0);
+  });
+
+  overviewData = { labels, depData, balData, withData, bonusData };
+  const numTxns = sorted.length;
+  const dateRange = labels.length > 1 ? `${labels[0]} → ${labels[labels.length-1]}` : (labels[0]||'');
+  document.getElementById('overview-sub').textContent =
+    `Individual transaction amounts · ${numTxns} transactions · ${dateRange}`;
+  renderOverviewChart();
+}
+
+function renderOverviewChart() {
+  if (!overviewData) return;
+  const { labels, depData, balData, withData, bonusData } = overviewData;
+  destroyChart('chart-overview');
+  const datasets = [];
+  if(seriesState.dep)   datasets.push({label:'Deposits',       data:depData,   borderColor:'#4f7ef8',backgroundColor:'rgba(79,126,248,0.5)',type:'bar',borderWidth:0,borderRadius:3,spanGaps:false});
+  if(seriesState.with)  datasets.push({label:'Withdrawals',    data:withData,  borderColor:'#f05252',backgroundColor:'rgba(240,82,82,0.5)',  type:'bar',borderWidth:0,borderRadius:3,spanGaps:false});
+  if(seriesState.bonus) datasets.push({label:'Bonuses & Cash', data:bonusData, borderColor:'#f5a623',backgroundColor:'rgba(245,166,35,0.5)', type:'bar',borderWidth:0,borderRadius:3,spanGaps:false});
+  if(seriesState.bal)   datasets.push({label:'Balance',        data:balData,   borderColor:'#34c97e',backgroundColor:'rgba(52,201,126,0.06)',type:'line',fill:false,pointRadius:2,pointHoverRadius:5,borderWidth:2,pointBackgroundColor:'#34c97e',tension:0.3,spanGaps:true});
+  if(datasets.length===0) return;
+  const _tc='#5e6170', _tf={family:"'Inter',sans-serif",size:10}, _gc='rgba(255,255,255,0.05)';
+  charts['chart-overview'] = new Chart(document.getElementById('chart-overview'),{
+    type:'bar',
+    data:{ labels, datasets },
+    options:{
+      responsive:true, maintainAspectRatio:false,
+      interaction:{mode:'index',intersect:false},
+      plugins:{legend:{display:false},tooltip:{callbacks:{label:ctx=>ctx.parsed.y!==null?' '+ctx.dataset.label+': £'+ctx.parsed.y.toLocaleString():null}}},
+      scales:{
+        x:{ticks:{color:_tc,font:_tf,maxTicksLimit:16,maxRotation:45},grid:{color:_gc}},
+        y:{ticks:{color:_tc,font:_tf,callback:v=>'£'+(v>=1000?(v/1000).toFixed(1)+'k':Math.round(v))},grid:{color:_gc}}
+      }
+    }
+  });
+}
+
+function toggleSeries(key) {
+  seriesState[key] = !seriesState[key];
+  document.getElementById('tbtn-'+key).classList.toggle('active', seriesState[key]);
+  renderOverviewChart();
+}
+
+function buildMonthlyCharts(rows, tc, tf, gc) {
+  const sorted=[...rows].sort((a,b)=>(a.date||'').localeCompare(b.date||''));
+  const mDep={}, mWith={};
+  sorted.forEach(r=>{
+    const mo=(r.date||'').slice(0,7); if(!mo) return;
+    const amt=parseFloat(r.amount)||0, type=(r.type||'').toLowerCase();
+    if(type==='deposit')    mDep[mo]=(mDep[mo]||0)+amt;
+    if(type==='withdrawal') mWith[mo]=(mWith[mo]||0)+amt;
+  });
+  const months=[...new Set([...Object.keys(mDep),...Object.keys(mWith)])].sort();
+  const mLabels=months.map(m=>{const p=m.split('-');return ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'][parseInt(p[1])-1]+' '+p[0].slice(2);});
+
+  destroyChart('chart-dep-hist');
+  charts['chart-dep-hist']=new Chart(document.getElementById('chart-dep-hist'),{type:'bar',data:{labels:mLabels,datasets:[{data:months.map(m=>mDep[m]||0),backgroundColor:'rgba(79,126,248,0.65)',borderColor:'#4f7ef8',borderWidth:0.5,borderRadius:4}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{x:{ticks:{color:tc,font:tf},grid:{color:gc}},y:{ticks:{color:tc,font:tf,callback:v=>'£'+v},grid:{color:gc}}}}});
+
+  destroyChart('chart-with-hist');
+  charts['chart-with-hist']=new Chart(document.getElementById('chart-with-hist'),{type:'bar',data:{labels:mLabels,datasets:[{data:months.map(m=>mWith[m]||0),backgroundColor:'rgba(240,82,82,0.65)',borderColor:'#f05252',borderWidth:0.5,borderRadius:4}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{x:{ticks:{color:tc,font:tf},grid:{color:gc}},y:{ticks:{color:tc,font:tf,callback:v=>'£'+v},grid:{color:gc}}}}});
+
+  const tc2={};
+  sorted.forEach(r=>{const t=r.type||'Other';tc2[t]=(tc2[t]||0)+1;});
+  const tCols={Deposit:'rgba(79,126,248,0.85)',Withdrawal:'rgba(240,82,82,0.85)',Bonus:'rgba(245,166,35,0.85)'};
+  destroyChart('chart-txn-mix');
+  charts['chart-txn-mix']=new Chart(document.getElementById('chart-txn-mix'),{type:'doughnut',data:{labels:Object.keys(tc2),datasets:[{data:Object.values(tc2),backgroundColor:Object.keys(tc2).map(t=>tCols[t]||'rgba(167,139,250,0.85)'),borderWidth:1.5,borderColor:'#16181c'}]},options:{responsive:true,maintainAspectRatio:false,cutout:'58%',plugins:{legend:{position:'right',labels:{color:'#5e6170',font:{family:"'Inter',sans-serif",size:10},boxWidth:10,boxHeight:8}}}}});
+}
+
+function buildHistoryTable(rows) {
+  const sorted=[...rows].sort((a,b)=>(b.date||'').localeCompare(a.date||''));
+  document.getElementById('fin-table-title').textContent='Financial history ('+sorted.length+' transactions)';
+  document.getElementById('fin-table-sub').textContent='Approved only · newest first';
+  document.getElementById('fin-table-body').innerHTML=sorted.map(r=>{
+    const type=r.type||'';
+    const cls=type.toLowerCase()==='deposit'?'type-dep':type.toLowerCase()==='withdrawal'?'type-with':'type-bonus';
+    const amt=parseFloat(r.amount)||0, bal=parseFloat(r.balance)||0;
+    const sign=type.toLowerCase()==='withdrawal'?'-':'+';
+    return `<tr><td>${r.date||'—'}</td><td class="${cls}">${type}</td><td>${sign}£${Math.abs(amt).toLocaleString()}</td><td><span class="status-approved">✓ Approved</span></td><td class="bal-cell">£${bal.toLocaleString()}</td></tr>`;
+  }).join('');
+}
+
+async function fetchAISummary(d) {
+  const hist=d.history||[];
+  const latestBal=hist.length?'£'+(parseFloat(hist[hist.length-1]?.balance)||0).toLocaleString():'N/A';
+  const histNote=hist.length?`Financial history: ${hist.length} approved transactions, latest balance: ${latestBal}`:'No financial history provided.';
+  if(!apiKey){
+    document.getElementById('ai-content').innerHTML='<div class="ai-error">Anthropic API key required. Enter your key in the top bar to generate a live AI summary.</div>';
+    return;
+  }
+  document.getElementById('ai-content').innerHTML='<div class="ai-loading"><div class="dots"><span></span><span></span><span></span></div><span>Generating insights...</span></div>';
+  const net=(parseFloat(d.deposits)||0)-(parseFloat(d.withdrawals)||0);
+  const prompt=`You are a senior VIP casino player analyst. Write a concise 3-paragraph professional analysis. No bullet points, no markdown, no headers.
+
+Player: ${d.name} | VIP: ${d.vip_tier} | Manager: ${d.vip_manager}
+Joined: ${d.join_date} | Last login: ${d.last_login}
+Deposits: £${d.deposits} | Withdrawals: £${d.withdrawals} | Net house: £${Math.round(net)}
+Bonuses: £${d.bonuses} | Cash given: £${d.cash_given||0} | Total wagering: £${d.wagering}
+Game sessions: ${d.game_sessions} | Games: ${d.fav_game}, ${d.game2}, ${d.game3}
+${histNote}
+
+Para 1: Player overview — deposit behaviour, activity level, VIP standing.
+Para 2: Bonus and game engagement patterns.
+Para 3: Risk signals, churn risk, and recommended CRM actions.`;
+  try{
+    const res=await fetch('https://api.anthropic.com/v1/messages',{method:'POST',headers:{'Content-Type':'application/json','x-api-key':apiKey,'anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true'},body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:700,messages:[{role:'user',content:prompt}]})});
+    const data=await res.json();
+    if(data.error) throw new Error(data.error.message);
+    const text=data.content?.find(b=>b.type==='text')?.text||'';
+    const paras=text.split(/\n+/).filter(p=>p.trim().length>0);
+    document.getElementById('ai-content').innerHTML=paras.map(p=>`<p class="ai-body">${p.trim()}</p>`).join('');
+  }catch(err){
+    document.getElementById('ai-content').innerHTML=`<div class="ai-error">API error: ${err.message}. Check your API key and try again.</div>`;
+  }
+}
+</script>
+</body>
+</html>
